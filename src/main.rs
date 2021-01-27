@@ -167,7 +167,7 @@ impl Widget<AppData> for DrawingWidget {
         if data_size != self.last_data_size {
             self.center = Point::new(data_size.width / 2.0, data_size.height / 2.0);
             self.scale = (self.size.height / data_size.height)
-                     .min(self.size.height / data_size.height) * 0.9;
+                     .min(self.size.width / data_size.width) * 0.9;
             self.last_data_size = data_size;
         }
 
