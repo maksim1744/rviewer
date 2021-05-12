@@ -4,6 +4,9 @@ use crate::app_data::DrawProperties;
 use druid::widget::prelude::*;
 use druid::{Color, Point, Rect};
 
+use svg::Document;
+use svg::node::element::Rectangle as SvgRect;
+
 pub struct MRect {
     center: Point,
     size: Point,
@@ -69,6 +72,23 @@ impl Figure for MRect {
         } else {
             ctx.stroke(rect, &self.color, self.width);
         }
+    }
+
+    fn draw_on_image(&self, img: Document, scale: f64) -> Document {
+        let color = self.color_to_string(&self.color);
+        let mut rect = SvgRect::new()
+            .set("x", self.center.x - self.size.x / 2.0)
+            .set("y", self.center.y - self.size.y / 2.0)
+            .set("width", self.size.x)
+            .set("height", self.size.y)
+            .set("stroke-width" , self.width / 10.)
+            .set("opacity", self.color.as_rgba().3 as f64);
+        if self.fill {
+            rect = rect.set("fill", color);
+        } else {
+            rect = rect.set("fill", "none").set("stroke", color);
+        }
+        img.add(rect)
     }
 
     fn get_tags(&self) -> std::slice::Iter<'_, std::string::String> {

@@ -6,6 +6,10 @@ use druid::{Color, Point};
 
 use druid::piet::{FontFamily, Text, TextLayoutBuilder, TextLayout};
 
+use svg::Document;
+use svg::node::element::Text as SvgText;
+use svg::node::Text as SvgText2;
+
 pub struct MText {
     center: Point,
     text: String,
@@ -72,6 +76,16 @@ impl Figure for MText {
         text_pos.y -= text_size.height / 2.0;
 
         ctx.draw_text(&layout, text_pos);
+    }
+
+    fn draw_on_image(&self, img: Document, scale: f64) -> Document {
+        let text = SvgText::new()
+            .add(SvgText2::new(&self.text))
+            .set("x", self.center.x)
+            .set("y", self.center.y)
+            .set("fill", self.color_to_string(&self.color))
+            .set("font-size", self.font);
+        img.add(text)
     }
 
     fn get_tags(&self) -> std::slice::Iter<'_, std::string::String> {

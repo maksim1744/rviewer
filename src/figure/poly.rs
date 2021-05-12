@@ -5,6 +5,8 @@ use crate::poly::Poly;
 use druid::widget::prelude::*;
 use druid::{Color, Point};
 
+use svg::Document;
+
 pub struct MPoly {
     points: Vec<Point>,
     fill: bool,
@@ -64,6 +66,10 @@ impl Figure for MPoly {
             ctx.stroke(poly, &self.color, self.width);
         }
     }
+
+fn draw_on_image(&self, img: Document, scale: f64) -> Document {
+    img
+}
 
     fn get_tags(&self) -> std::slice::Iter<'_, std::string::String> {
         self.tags.iter()

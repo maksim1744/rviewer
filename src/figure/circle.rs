@@ -5,6 +5,9 @@ use druid::widget::prelude::*;
 use druid::{Color, Point};
 use druid::kurbo::Circle;
 
+use svg::Document;
+use svg::node::element::Circle as SvgCircle;
+
 pub struct MCircle {
     center: Point,
     radius: f64,
@@ -68,6 +71,22 @@ impl Figure for MCircle {
         } else {
             ctx.stroke(circle, &self.color, self.width);
         }
+    }
+
+    fn draw_on_image(&self, img: Document, scale: f64) -> Document {
+        let color = self.color_to_string(&self.color);
+        let mut circ = SvgCircle::new()
+            .set("cx", self.center.x)
+            .set("cy", self.center.y)
+            .set("r" , self.radius  )
+            .set("stroke-width" , self.width / 10.)
+            .set("opacity", self.color.as_rgba().3 as f64);
+        if self.fill {
+            circ = circ.set("fill", color);
+        } else {
+            circ = circ.set("fill", "none").set("stroke", color);
+        }
+        img.add(circ)
     }
 
     fn get_tags(&self) -> std::slice::Iter<'_, std::string::String> {

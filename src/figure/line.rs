@@ -5,6 +5,9 @@ use druid::widget::prelude::*;
 use druid::{Color, Point};
 use druid::kurbo::Line;
 
+use svg::Document;
+use svg::node::element::Line as SvgLine;
+
 pub struct MLine {
     start: Point,
     finish: Point,
@@ -57,6 +60,18 @@ impl Figure for MLine {
         let start = transform(self.start);
         let finish = transform(self.finish);
         ctx.stroke(Line::new(start, finish), &self.color, self.width);
+    }
+
+    fn draw_on_image(&self, img: Document, scale: f64) -> Document {
+        let line = SvgLine::new()
+            .set("x1", self.start.x)
+            .set("y1", self.start.y)
+            .set("x2", self.finish.x)
+            .set("y2", self.finish.y)
+            .set("stroke-width", self.width / 10.)
+            .set("stroke", self.color_to_string(&self.color))
+            .set("opacity", self.color.as_rgba().3 as f64);
+        img.add(line)
     }
 
     fn get_tags(&self) -> std::slice::Iter<'_, std::string::String> {

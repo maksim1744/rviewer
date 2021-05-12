@@ -6,6 +6,8 @@ use druid::{Color, Point};
 
 use druid::piet::{FontFamily, Text, TextLayoutBuilder, TextLayout};
 
+use svg::Document;
+
 pub struct MMessage {
     message_ind: usize,
     text: String,
@@ -39,6 +41,10 @@ impl Figure for MMessage {
         let text_size = layout.size();
 
         ctx.draw_text(&layout, Point::new(0.0, self.message_ind as f64 * text_size.height));
+    }
+
+    fn draw_on_image(&self, img: Document, scale: f64) -> Document {
+        img
     }
 
     fn get_tags(&self) -> std::slice::Iter<'_, std::string::String> {

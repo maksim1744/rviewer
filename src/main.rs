@@ -12,10 +12,10 @@ use std::collections::HashSet;
 use druid::widget::prelude::*;
 use druid::widget::{Flex, Widget, MainAxisAlignment, CrossAxisAlignment, SizedBox, Label, Align};
 use druid::{Size, AppLauncher, WindowDesc, Point, WidgetExt, MouseButton, TimerToken};
-// use druid::Color;
+use druid::{MenuDesc, MenuItem, LocalizedString, Selector};
 use druid::Code;
 
-// use druid::piet::{FontFamily, Text, TextLayoutBuilder};
+use svg::Document;
 
 mod app_data;
 mod figure;
@@ -51,6 +51,32 @@ impl DrawingWidget {
         p.x = (p.x - self.size.width / 2.0) / self.scale + self.center.x;
         p.y = (p.y - self.size.height / 2.0) / self.scale + self.center.y;
         p
+    }
+
+    fn save_frame(&self, data: &AppData) {
+        if data.frame >= data.frames.lock().unwrap().len() {
+            return;
+        }
+
+        let mut img = Document::new()  // TODO size
+            .set("viewBox", (0, 0, 40, 30))
+            .set("width", 400)
+            .set("height", 300);
+
+        let enabled_tags = data.tags.lock().unwrap().iter().filter(|(_, b)| *b).map(|(tag, _)| tag.clone()).collect::<HashSet<String>>();
+
+        // let scale = (400 as f64) / data.size.lock().unwrap().width;
+        let scale = 1.0_f64;
+
+        let frame = &data.frames.lock().unwrap()[data.frame];
+        for ind in frame.iter() {
+            let item = &data.objects.lock().unwrap()[*ind];
+            if item.need_to_draw(&enabled_tags) {
+                img = item.draw_on_image(img, scale);
+            }
+        }
+
+        svg::save("image.svg", &img).unwrap();
     }
 }
 
@@ -129,7 +155,10 @@ impl Widget<AppData> for DrawingWidget {
                     }
                 }
             },
-            Event::Command(_) => {
+            Event::Command(c) => {
+                if c.is::<()>(Selector::new("save_frame")) {
+                    self.save_frame(data);
+                }
                 ctx.request_paint();
             },
             _ => (),
@@ -248,6 +277,10 @@ fn main() {
                 width: 800.0,
                 height: 600.0,
             })
+            .menu(MenuDesc::new(LocalizedString::new("my title"))
+                .append(
+                    MenuItem::new(LocalizedString::new("Save frame"), Selector::new("save_frame")))
+                )
             .resizable(true)
             .title("Viewer");
         AppLauncher::with_window(window)
