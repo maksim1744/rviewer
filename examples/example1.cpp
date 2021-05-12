@@ -1,10 +1,12 @@
+#include "cpp_client.h"
 #include "bits/stdc++.h"
 
 using namespace std;
+using namespace rviewer;
 
 // reads input for problem https://codeforces.com/gym/102892/problem/5
 // set answer here:
-const int cnt = 2;
+const int answer = 2;
 
 int main() {
     ios_base::sync_with_stdio(false); cin.tie(NULL); cout.tie(NULL);
@@ -30,44 +32,57 @@ int main() {
         }
         sort(cand.begin(), cand.end());
         reverse(cand.begin(), cand.end());
-        cand.resize(min((int)cand.size(), cnt));
+        cand.resize(min((int)cand.size(), answer));
         for (auto [a, b] : cand)
             picks[i].push_back(b);
     }
     double W = 10;
-    cout << "size (" << W * (m + 1) << "," << W * (n + 1) << ")\n";
-    cout << "speed 1.5\n";
-    cout << "grid c=(" << W << "," << W << ") a=BB s=(" << W*m << "," << W*n << ") d=(" << m << "," << n << ") w=0.5 col=(255,255,255)\n";
+
+    Init().size({W * (m + 1), W * (n + 1)}).speed(1.5);
+    Grid({W, W}, {W*m, W*n}, {m, n}).align(Alignment::BEGIN, Alignment::BEGIN).width(0.5).color(Color::white);
 
     for (int i = 0; i < n; ++i) {
-        cout << "text c=(" << W/2 << "," << W/2 + W + i * W << ") m=" << scores[i] << " s=" << W*0.6 << " col=(255,255,255)\n";
-        for (int j = 0; j < m; ++j) {
-            cout << "text c=(" << W/2 + W * (j + 1) << "," << W/2 + W + i * W << ") m=" << v[i][j] << " s=" << W*0.6 << " col=(255,255,255)\n";
-        }
+        // score for channel
+        Text(to_string(scores[i])).center({W/2, W/2 + W + i*W}).font(W * 0.6).color(Color::white);
+        for (int j = 0; j < m; ++j)
+            // 0 or 1 in corresponding cell
+            Text(v[i].substr(j, 1)).center({W/2 + W * (j + 1), W/2 + W + i * W}).font(W * 0.6).color(Color::white);
     }
-    cout << "tick\n";
+
+    Tick();
+
     vector<int> s(m);
     for (int i = 0; i < m; ++i) {
-        cout << "tick\n";
-        cout << "line s=(" << i*W + W*1.5 << "," << W*(n+1) + W*0.2 << ") f=(" << i*W + W*1.5 << "," << W*(n+1) + W - W*0.2 << ") col=(255,255,255) w=0.5\n";
-        cout << "line s=(" << i*W + W*1.5 << "," << W*(n+1) + W*0.2 << ") f=(" << i*W + W*1.5 - W*0.2 << "," << W*(n+1) + W * 0.5 << ") col=(255,255,255) w=0.5\n";
-        cout << "line s=(" << i*W + W*1.5 << "," << W*(n+1) + W*0.2 << ") f=(" << i*W + W*1.5 + W*0.2 << "," << W*(n+1) + W * 0.5 << ") col=(255,255,255) w=0.5\n";
+        Tick();
+        // 3 segment for an arrow
+        Line().start({i*W + W*1.5, W*(n+1) + W*0.2}).finish({i*W + W*1.5, W*(n+1) + W*0.8}).color(Color::white).width(0.5);
+        Line().start({i*W + W*1.5, W*(n+1) + W*0.2}).finish({i*W + W*1.5 - W*0.2, W*(n+1) + W*0.5}).color(Color::white).width(0.5);
+        Line().start({i*W + W*1.5, W*(n+1) + W*0.2}).finish({i*W + W*1.5 + W*0.2, W*(n+1) + W*0.5}).color(Color::white).width(0.5);
         for (int j : picks[i]) {
-            cout << "rect c=(" << (i+1)*W << "," << (j+1)*W << ") a=BB s=(" << W << "," << W << ") f=0 col=(0,255,0) w=2\n";
-            cout << "text c=(" << W/2 << "," << W/2 + W + j * W << ") m=" << scores[j] << " s=" << W*0.6 << " col=(0,255,0)\n";
+            // select rectangle and corresponding channel score
+            Rect({(i+1)*W, (j+1)*W}, {W, W}).align(Alignment::BEGIN, Alignment::BEGIN).fill(0).color(Color::green).width(2);
+            Text(to_string(scores[j])).center({W/2, W/2 + W + j * W}).font(W * 0.6).color(Color::green);
             s[i] += scores[j];
         }
+        // previous column sums
         for (int j = 0; j < i; ++j)
-            cout << "text c=(" << W/2 + W * (j + 1) << "," << W/2 << ") m=" << s[j] << " s=" << W*0.4 << " col=(255,255,255)\n";
-        cout << "text c=(" << W/2 + W * (i + 1) << "," << W/2 << ") m=" << s[i] << " s=" << W*0.4 << " col=(0,255,0)\n";
+            Text(to_string(s[j])).center({W/2 + W*(j+1), W/2}).font(W*0.4).color(Color::white);
+        // new column sum
+        Text(to_string(s[i])).center({W/2 + W*(i+1), W/2}).font(W*0.4).color(Color::green);
     }
-    cout << "tick\n";
+
+    Tick();
+
+    // column sums
     for (int j = 0; j < m; ++j)
-        cout << "text c=(" << W/2 + W * (j + 1) << "," << W/2 << ") m=" << s[j] << " s=" << W*0.4 << " col=(255,255,255)\n";
+        Text(to_string(s[j])).center({W/2 + W*(j+1), W/2}).font(W*0.4).color(Color::white);
+    // + signs
     for (int j = 0; j + 1 < m; ++j)
-        cout << "text c=(" << W + W * (j + 1) << "," << W/2 << ") m=+" << " s=" << W*0.4 << " col=(255,255,255)\n";
-    cout << "text c=(" << W + W * (m) << "," << W/2 << ") m==" << " s=" << W*0.4 << " col=(255,255,255)\n";
-    cout << "text c=(" << W/2 + W * (m + 1) << "," << W/2 << ") m=" << accumulate(s.begin(), s.end(), 0) << " s=" << W*0.4 << " col=(255,255,255)\n";
+        Text("+").center({W + W*(j+1), W/2}).font(W*0.4).color(Color::white);
+    // = sign
+    Text("=").center({W + W*m, W/2}).font(W*0.4).color(Color::white);
+    // total score
+    Text(to_string(accumulate(s.begin(), s.end(), 0))).center({W/2 + W*(m+1), W/2}).font(W*0.4).color(Color::white);
 
     return 0;
 }
