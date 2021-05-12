@@ -9,6 +9,7 @@ pub struct MRect {
     size: Point,
     fill: bool,
     width: f64,
+    alignment: (char, char),
     color: Color,
     tags: Vec<String>,
 }
@@ -20,6 +21,7 @@ impl MRect {
             size: Point::new(0.0, 0.0),
             fill: false,
             width: draw_properties.width,
+            alignment: ('C', 'C'),
             color: Color::rgb8(0 as u8, 0 as u8, 0 as u8),
             tags: Vec::new(),
         };
@@ -39,6 +41,8 @@ impl MRect {
                 if token == "f=1" {
                     rect.fill = true;
                 }
+            } else if token.starts_with("a=") {
+                rect.alignment = (token.chars().nth(2).expect(&error_message), token.chars().nth(3).expect(&error_message));
             } else if token.starts_with("col=") {
                 let mut iter = token[5..token.len() - 1].split(",");
                 let r = iter.next().expect(&error_message).parse().expect(&error_message);
@@ -59,7 +63,18 @@ impl MRect {
 
 impl Figure for MRect {
     fn draw(&self, ctx: &mut PaintCtx, scale: f64, transform: &dyn Fn(Point) -> Point) {
-        let center = transform(self.center);
+        let mut center = self.center;
+        if self.alignment.0 == 'B' {
+            center.x += self.size.x / 2.;
+        } else if self.alignment.0 == 'E' {
+            center.x -= self.size.x / 2.;
+        }
+        if self.alignment.1 == 'B' {
+            center.y += self.size.y / 2.;
+        } else if self.alignment.1 == 'E' {
+            center.y -= self.size.y / 2.;
+        }
+        let center = transform(center);
         let mut size = self.size;
         size.x *= scale;
         size.y *= scale;

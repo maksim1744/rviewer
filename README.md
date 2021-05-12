@@ -24,8 +24,9 @@ File consists of multiple lines, each line corresponds to an object to be drawn.
 Objects look like this: `circle c=(10,20) r=15 col=(255,255,0) f=1`. Not all parameters are required, default will be used if not specified. Spaces are important (as well as their absence in `col`, for example)
 
 Each object can be one of those:
-+ `rect` &mdash; rectangle by center and size 
-  + `c=(10,20)` &mdash; center, pair of doubles
++ `rect` &mdash; rectangle by position and size 
+  + `c=(10,20)` &mdash; position, pair of doubles
+  + `a=xy` &mdash; alignment, consists of two chars, each is `B`, `C` or `E`, stands for `begin`, `center` or `end`, default is `a=CC`
   + `s=(10,20)` &mdash; size, pair of doubles
   + `col=(255,255,0)` &mdash; color, 3 or 4 integers from 0 to 255 (last one is alpha channel)
   + `f=0` &mdash; 1 or 0, fill or not
@@ -33,6 +34,7 @@ Each object can be one of those:
 
 + `circle` &mdash; circle by center and radius
   + `c=(10,20)` &mdash; center, pair of doubles
+  + `a=xy` &mdash; alignment, consists of two chars, each is `B`, `C` or `E`, stands for `begin`, `center` or `end`, default is `a=CC`
   + `r=15` &mdash; radius, double
   + `col=(255,255,0)` &mdash; color, 3 or 4 integers from 0 to 255 (last one is alpha channel)
   + `f=0` &mdash; 1 or 0, fill or not
@@ -44,8 +46,9 @@ Each object can be one of those:
   + `col=(255,255,0)` &mdash; color, 3 or 4 integers from 0 to 255 (last one is alpha channel)
   + `w=1.5` &mdash; double, width
 
-+ `grid` &mdash; grid by center, size and number of cells
-  + `c=(10,20)` &mdash; center, pair of doubles
++ `grid` &mdash; grid by position, size and number of cells
+  + `c=(10,20)` &mdash; position, pair of doubles
+  + `a=xy` &mdash; alignment, consists of two chars, each is `B`, `C` or `E`, stands for `begin`, `center` or `end`, default is `a=CC`
   + `s=(10,20)` &mdash; size, pair of doubles
   + `d=(5,8)` &mdash; number of columns and rows, pair of integers
   + `col=(255,255,0)` &mdash; color, 3 or 4 integers from 0 to 255 (last one is alpha channel)
