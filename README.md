@@ -70,6 +70,35 @@ Each object can be one of those:
 
 Every object except for `msg` has one more option `t=some_tag`. This adds a tag to an object. All tags will be shown in the right part of a screen and you can disable visibility of objects with certain tag.
 
+## Clients
+All available clients are available in folder [client](/clients).
+### cpp
+Examples can be found in [examples](/examples) folder. The simple program will look like this:
+<details>
+  <summary>Code</summary>
+  
+  ```cpp
+  Init().size({W * (m + 1), W * (n + 1)}).speed(1.5);
+  Tick();
+  Rect({10, 20}, {4, 3}).fill(0).color(Color::red).align('B', 'C');
+  Text(to_string(123)).center({25, 35}).font(7.5).color(Color::white);
+  
+  // object is drawn in destructor
+  auto rect = Rect({10, 20}, {4, 3}).fill(1).color(Color::orange);  // prints nothing
+  rect.align('C', 'E');
+  rect.tag("some_tag");
+  rect.draw();  // prints rectangle with alignment and tag
+  // if you don't call draw, it will be drawn in destructor anyway
+  // if you don't want that, set rect.drawn_ = true
+  ```
+  
+</details>
+
+## Key bindings
++ Move between ticks with arrows
++ Pause and continue with space
++ Fit picture to screen size with `0`
+
 ## Build
 Download cargo from [official website](https://doc.rust-lang.org/cargo/getting-started/installation.html), clone this repo and call `cd rviewer` and `cargo build --release`. All files in `target` repository can be deleted after build, except for `rviewer.exe`. If you use Linux, you may be interested in reading [requirements](https://github.com/linebender/druid#linux) for graphics library.
 
