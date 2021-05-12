@@ -2,6 +2,10 @@
 
 using namespace std;
 
+// reads input for problem https://codeforces.com/gym/102892/problem/5
+// set answer here:
+const int cnt = 2;
+
 int main() {
     ios_base::sync_with_stdio(false); cin.tie(NULL); cout.tie(NULL);
 
@@ -18,7 +22,6 @@ int main() {
     reverse(v.begin(), v.end());
     reverse(scores.begin(), scores.end());
     vector<vector<int>> picks(m);
-    int cnt = 2;
     for (int i = 0; i < m; ++i) {
         vector<pair<int, int>> cand;
         for (int j = 0; j < n; ++j) {
