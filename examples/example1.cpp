@@ -37,12 +37,7 @@ int main() {
     double W = 10;
     cout << "size (" << W * (m + 1) << "," << W * (n + 1) << ")\n";
     cout << "speed 1.5\n";
-    for (int i = 0; i <= n; ++i) {
-        cout << "line s=(" << W << "," << i * W + W << ") f=(" << W * m + W << "," << i * W + W << ") col=(255,255,255) w=0.5\n";
-    }
-    for (int j = 1; j <= m + 1; ++j) {
-        cout << "line s=(" << W * j << "," << W << ") f=(" << W * j << "," << n * W + W << ") col=(255,255,255) w=0.5\n";
-    }
+    cout << "grid c=(" << W*(m+2)/2 << "," << W*(n+2)/2 << ") s=(" << W*m << "," << W*n << ") d=(" << m << "," << n << ") w=0.5 col=(255,255,255)\n";
 
     for (int i = 0; i < n; ++i) {
         cout << "text c=(" << W/2 << "," << W/2 + W + i * W << ") m=" << scores[i] << " s=" << W*0.6 << " col=(255,255,255)\n";

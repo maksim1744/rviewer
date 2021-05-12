@@ -9,6 +9,8 @@ pub mod rect;
 pub use rect::MRect;
 pub mod circle;
 pub use circle::MCircle;
+pub mod grid;
+pub use grid::MGrid;
 pub mod line;
 pub use line::MLine;
 pub mod poly;
@@ -40,6 +42,8 @@ pub fn from_string(s: &str, draw_properties: &mut DrawProperties) -> Option<Box<
         Some(Box::new(MCircle::from_string(s, draw_properties)))
     } else if s.starts_with("line") {
         Some(Box::new(MLine::from_string(s, draw_properties)))
+    } else if s.starts_with("grid") {
+        Some(Box::new(MGrid::from_string(s, draw_properties)))
     } else if s.starts_with("poly") {
         Some(Box::new(MPoly::from_string(s, draw_properties)))
     } else if s.starts_with("text") {

@@ -44,6 +44,13 @@ Each object can be one of those:
   + `col=(255,255,0)` &mdash; color, 3 or 4 integers from 0 to 255 (last one is alpha channel)
   + `w=1.5` &mdash; double, width
 
++ `grid` &mdash; grid by center, size and number of cells
+  + `c=(10,20)` &mdash; center, pair of doubles
+  + `s=(10,20)` &mdash; size, pair of doubles
+  + `d=(5,8)` &mdash; number of columns and rows, pair of integers
+  + `col=(255,255,0)` &mdash; color, 3 or 4 integers from 0 to 255 (last one is alpha channel)
+  + `w=1.5` &mdash; double, width of a border line. Works only with `f=0`
+
 + `poly` &mdash; polygon or polyline by vertices
   + `p=(10,20)` &mdash; one vertex, add as many as you need in the right order
   + `col=(255,255,0)` &mdash; color, 3 or 4 integers from 0 to 255 (last one is alpha channel)
