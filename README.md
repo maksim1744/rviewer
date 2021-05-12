@@ -34,7 +34,6 @@ Each object can be one of those:
 
 + `circle` &mdash; circle by center and radius
   + `c=(10,20)` &mdash; center, pair of doubles
-  + `a=xy` &mdash; alignment, consists of two chars, each is `B`, `C` or `E`, stands for `begin`, `center` or `end`, default is `a=CC`
   + `r=15` &mdash; radius, double
   + `col=(255,255,0)` &mdash; color, 3 or 4 integers from 0 to 255 (last one is alpha channel)
   + `f=0` &mdash; 1 or 0, fill or not
@@ -61,7 +60,8 @@ Each object can be one of those:
   + `w=1.5` &mdash; double, width of a border line. Works only with `f=0`
 
 + `text` &mdash; text
-  + `c=(10,20)` &mdash; position (center of a text), pair of doubles
+  + `c=(10,20)` &mdash; position, pair of doubles
+  + `a=xy` &mdash; alignment, consists of two chars, each is `B`, `C` or `E`, stands for `begin`, `center` or `end`, default is `a=CC`
   + `s=15` &mdash; font, double
   + `col=(255,255,0)` &mdash; color, 3 or 4 integers from 0 to 255 (last one is alpha channel)
   + `m=some_text` &mdash; text, spaces are not allowed, `;` will be replaced with new line symbol
