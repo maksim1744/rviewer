@@ -15,6 +15,7 @@ pub struct MText {
     text: String,
     font: f64,
     color: Color,
+    alignment: (char, char),
     tags: Vec<String>,
 }
 
@@ -24,6 +25,7 @@ impl MText {
             center: Point::new(0.0, 0.0),
             text: String::new(),
             font: draw_properties.font,
+            alignment: ('C', 'C'),
             color: Color::rgb8(0 as u8, 0 as u8, 0 as u8),
             tags: Vec::new(),
         };
@@ -37,6 +39,8 @@ impl MText {
                 text.text = token[2..].trim().replace(";", "\n");
             } else if token.starts_with("s=") {
                 text.font = token[2..].trim().parse().expect(&error_message);
+            } else if token.starts_with("a=") {
+                text.alignment = (token.chars().nth(2).expect(&error_message), token.chars().nth(3).expect(&error_message));
             } else if token.starts_with("col=") {
                 let mut iter = token[5..token.len() - 1].split(",");
                 let r = iter.next().expect(&error_message).parse().expect(&error_message);
@@ -57,7 +61,6 @@ impl MText {
 
 impl Figure for MText {
     fn draw(&self, ctx: &mut PaintCtx, scale: f64, transform: &dyn Fn(Point) -> Point) {
-        let center = transform(self.center);
         let font = self.font * scale;
 
         let text = ctx.text();
@@ -70,6 +73,18 @@ impl Figure for MText {
             .unwrap();
 
         let text_size = layout.size();
+
+        let mut center = transform(self.center);
+        if self.alignment.0 == 'B' {
+            center.x += text_size.width / 2.;
+        } else if self.alignment.0 == 'E' {
+            center.x -= text_size.width / 2.;
+        }
+        if self.alignment.1 == 'B' {
+            center.y -= text_size.height / 2.;
+        } else if self.alignment.1 == 'E' {
+            center.y += text_size.height / 2.;
+        }
 
         let mut text_pos = center;
         text_pos.x -= text_size.width / 2.0;

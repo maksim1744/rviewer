@@ -1,0 +1,38 @@
+size (30,30)
+grid c=(15,15) d=(3,3) s=(30,30) col=(255,255,255)
+rect c=(5,5) s=(4,3) f=0 col=(255,0,0) a=BB
+grid c=(5,5) s=(3,2) d=(3,2) f=0 col=(0,255,0) a=BB
+text c=(5,5) s=1 col=(0,255,255) a=BB m=BB
+circle c=(5,5) r=0.2 f=1 col=(255,255,255)
+rect c=(5,15) s=(4,3) f=0 col=(255,0,0) a=BC
+grid c=(5,15) s=(3,2) d=(3,2) f=0 col=(0,255,0) a=BC
+text c=(5,15) s=1 col=(0,255,255) a=BC m=BC
+circle c=(5,15) r=0.2 f=1 col=(255,255,255)
+rect c=(5,25) s=(4,3) f=0 col=(255,0,0) a=BE
+grid c=(5,25) s=(3,2) d=(3,2) f=0 col=(0,255,0) a=BE
+text c=(5,25) s=1 col=(0,255,255) a=BE m=BE
+circle c=(5,25) r=0.2 f=1 col=(255,255,255)
+rect c=(15,5) s=(4,3) f=0 col=(255,0,0) a=CB
+grid c=(15,5) s=(3,2) d=(3,2) f=0 col=(0,255,0) a=CB
+text c=(15,5) s=1 col=(0,255,255) a=CB m=CB
+circle c=(15,5) r=0.2 f=1 col=(255,255,255)
+rect c=(15,15) s=(4,3) f=0 col=(255,0,0) a=CC
+grid c=(15,15) s=(3,2) d=(3,2) f=0 col=(0,255,0) a=CC
+text c=(15,15) s=1 col=(0,255,255) a=CC m=CC
+circle c=(15,15) r=0.2 f=1 col=(255,255,255)
+rect c=(15,25) s=(4,3) f=0 col=(255,0,0) a=CE
+grid c=(15,25) s=(3,2) d=(3,2) f=0 col=(0,255,0) a=CE
+text c=(15,25) s=1 col=(0,255,255) a=CE m=CE
+circle c=(15,25) r=0.2 f=1 col=(255,255,255)
+rect c=(25,5) s=(4,3) f=0 col=(255,0,0) a=EB
+grid c=(25,5) s=(3,2) d=(3,2) f=0 col=(0,255,0) a=EB
+text c=(25,5) s=1 col=(0,255,255) a=EB m=EB
+circle c=(25,5) r=0.2 f=1 col=(255,255,255)
+rect c=(25,15) s=(4,3) f=0 col=(255,0,0) a=EC
+grid c=(25,15) s=(3,2) d=(3,2) f=0 col=(0,255,0) a=EC
+text c=(25,15) s=1 col=(0,255,255) a=EC m=EC
+circle c=(25,15) r=0.2 f=1 col=(255,255,255)
+rect c=(25,25) s=(4,3) f=0 col=(255,0,0) a=EE
+grid c=(25,25) s=(3,2) d=(3,2) f=0 col=(0,255,0) a=EE
+text c=(25,25) s=1 col=(0,255,255) a=EE m=EE
+circle c=(25,25) r=0.2 f=1 col=(255,255,255)
