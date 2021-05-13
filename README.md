@@ -18,6 +18,7 @@ File consists of multiple lines, each line corresponds to an object to be drawn.
 + `size (w,h)` &mdash; size of the frame
 + `speed f` &mdash; number of frames per second
 + `width w` &mdash; default width of a line
++ `svgwidth` &mdash; factor to scale line width when converting to `svg` (default 0.3)
 + `font f` &mdash; default font size
 + `disable some_tag` &mdash; tag will be disable by default
 

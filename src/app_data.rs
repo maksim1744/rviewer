@@ -20,7 +20,7 @@ pub struct AppData {
     pub size: Arc<Mutex<Size>>,
     pub tags: Arc<Mutex<Vec<(String, bool)>>>,
     pub draw_properties: Arc<Mutex<DrawProperties>>,
-    pub svg_width_scale: f64,
+    pub svg_width_scale: Arc<Mutex<f64>>,
 
     pub finished: Arc<Mutex<bool>>,
 }

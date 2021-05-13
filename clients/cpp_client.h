@@ -93,6 +93,7 @@ struct Init {
     optional<double> font_;
     optional<double> speed_;
     optional<double> width_;
+    optional<double> svg_width_;
     bool drawn_ = false;
 
     Init() {}
@@ -118,6 +119,10 @@ struct Init {
         width_ = d;
         return *this;
     }
+    Init &svg_width(double d) {
+        svg_width_ = d;
+        return *this;
+    }
 
     void draw() {
         drawn_ = true;
@@ -125,6 +130,8 @@ struct Init {
             _cout << "size " << rviewer_to_string(*size_) << '\n';
         if (width_)
             _cout << "width " << rviewer_to_string(*width_) << '\n';
+        if (svg_width_)
+            _cout << "svgwidth " << rviewer_to_string(*svg_width_) << '\n';
         if (font_)
             _cout << "font " << rviewer_to_string(*font_) << '\n';
         if (speed_)

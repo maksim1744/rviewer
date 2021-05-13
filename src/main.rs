@@ -86,7 +86,7 @@ impl DrawingWidget {
 
         let params = SvgParams {
             size: size.clone(),
-            width_scale: data.svg_width_scale,
+            width_scale: *data.svg_width_scale.lock().unwrap(),
         };
 
         for ind in frame.iter() {
@@ -382,6 +382,9 @@ fn main() {
     let finished = Arc::new(Mutex::new(false));
     let finished_ptr = finished.clone();
 
+    let svg_width_scale = Arc::new(Mutex::new(0.3));
+    let svg_width_scale_ptr = svg_width_scale.clone();
+
     let handle = thread::spawn(move || {
         let app_data = AppData {
             objects: objects_ptr,
@@ -391,7 +394,7 @@ fn main() {
             size: size_ptr,
             tags: tags_ptr,
             draw_properties: draw_properties_ptr,
-            svg_width_scale: 0.3,
+            svg_width_scale: svg_width_scale_ptr,
             finished: finished_ptr,
         };
 
@@ -447,6 +450,8 @@ fn main() {
             let mut iter = line.trim()[6..line.len() - 1].split(",");
             size.lock().unwrap().width = iter.next().unwrap().parse().unwrap();
             size.lock().unwrap().height = iter.next().unwrap().parse().unwrap();
+        } else if line.starts_with("svgwidth") {
+            *svg_width_scale.lock().unwrap() = line[9..].trim().parse::<f64>().unwrap();
         } else if line.starts_with("disable ") {
             let dtag = line[8..].trim().to_string();
             for (tag, b) in tags.lock().unwrap().iter_mut() {
