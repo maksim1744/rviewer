@@ -1,9 +1,13 @@
 use crate::figure::Figure;
 use crate::app_data::DrawProperties;
+use crate::svg_params::SvgParams;
 
 use druid::widget::prelude::*;
 use druid::{Color, Point};
 use druid::kurbo::Line;
+
+use svg::Document;
+use svg::node::element::Line as SvgLine;
 
 pub struct MGrid {
     center: Point,
@@ -88,6 +92,44 @@ impl Figure for MGrid {
             ctx.stroke(Line::new(Point::new(center.x - size.x / 2., center.y - size.y / 2. + size.y / self.dims.1 as f64 * i as f64),
                                  Point::new(center.x + size.x / 2., center.y - size.y / 2. + size.y / self.dims.1 as f64 * i as f64)), &self.color, self.width);
         }
+    }
+
+    fn draw_on_image(&self, mut img: Document, params: &SvgParams) -> Document {
+        let mut center = self.center.clone();
+        if self.alignment.0 == 'B' {
+            center.x += self.size.x / 2.;
+        } else if self.alignment.0 == 'E' {
+            center.x -= self.size.x / 2.;
+        }
+        if self.alignment.1 == 'B' {
+            center.y += self.size.y / 2.;
+        } else if self.alignment.1 == 'E' {
+            center.y -= self.size.y / 2.;
+        }
+        for i in 0..self.dims.0 + 1 {
+            let line = SvgLine::new()
+                .set("x1", center.x - self.size.x / 2. + self.size.x / self.dims.0 as f64 * i as f64)
+                .set("y1", params.size.height - (center.y - self.size.y / 2.))
+                .set("x2", center.x - self.size.x / 2. + self.size.x / self.dims.0 as f64 * i as f64)
+                .set("y2", params.size.height - (center.y + self.size.y / 2.))
+                .set("stroke-width", self.width * params.width_scale)
+                .set("stroke", self.color_to_string(&self.color))
+                .set("opacity", self.color.as_rgba().3 as f64);
+            img = img.add(line);
+        }
+        for i in 0..self.dims.1 + 1 {
+            let line = SvgLine::new()
+                .set("x1", center.x - self.size.x / 2.)
+                .set("y1", params.size.height - (center.y - self.size.y / 2. + self.size.y / self.dims.1 as f64 * i as f64))
+                .set("x2", center.x + self.size.x / 2.)
+                .set("y2", params.size.height - (center.y - self.size.y / 2. + self.size.y / self.dims.1 as f64 * i as f64))
+                .set("stroke-width", self.width * params.width_scale)
+                .set("stroke", self.color_to_string(&self.color))
+                .set("opacity", self.color.as_rgba().3 as f64);
+            img = img.add(line);
+        }
+
+        img
     }
 
     fn get_tags(&self) -> std::slice::Iter<'_, std::string::String> {

@@ -1,5 +1,6 @@
 use crate::figure::Figure;
 use crate::app_data::DrawProperties;
+use crate::svg_params::SvgParams;
 
 use druid::widget::prelude::*;
 use druid::{Color, Point, Rect};
@@ -89,14 +90,25 @@ impl Figure for MRect {
         }
     }
 
-    fn draw_on_image(&self, img: Document, scale: f64) -> Document {
+    fn draw_on_image(&self, img: Document, params: &SvgParams) -> Document {
         let color = self.color_to_string(&self.color);
+        let mut center = self.center;
+        if self.alignment.0 == 'B' {
+            center.x += self.size.x / 2.;
+        } else if self.alignment.0 == 'E' {
+            center.x -= self.size.x / 2.;
+        }
+        if self.alignment.1 == 'B' {
+            center.y += self.size.y / 2.;
+        } else if self.alignment.1 == 'E' {
+            center.y -= self.size.y / 2.;
+        }
         let mut rect = SvgRect::new()
-            .set("x", self.center.x - self.size.x / 2.0)
-            .set("y", self.center.y - self.size.y / 2.0)
+            .set("x", center.x - self.size.x / 2.0)
+            .set("y", params.size.height - (center.y + self.size.y / 2.0))
             .set("width", self.size.x)
             .set("height", self.size.y)
-            .set("stroke-width" , self.width / 10.)
+            .set("stroke-width", self.width * params.width_scale)
             .set("opacity", self.color.as_rgba().3 as f64);
         if self.fill {
             rect = rect.set("fill", color);

@@ -1,5 +1,6 @@
 use crate::figure::Figure;
 use crate::app_data::DrawProperties;
+use crate::svg_params::SvgParams;
 
 use druid::widget::prelude::*;
 use druid::{Color, Point};
@@ -73,13 +74,13 @@ impl Figure for MCircle {
         }
     }
 
-    fn draw_on_image(&self, img: Document, scale: f64) -> Document {
+    fn draw_on_image(&self, img: Document, params: &SvgParams) -> Document {
         let color = self.color_to_string(&self.color);
         let mut circ = SvgCircle::new()
             .set("cx", self.center.x)
-            .set("cy", self.center.y)
+            .set("cy", params.size.height - self.center.y)
             .set("r" , self.radius  )
-            .set("stroke-width" , self.width / 10.)
+            .set("stroke-width" , self.width * params.width_scale)
             .set("opacity", self.color.as_rgba().3 as f64);
         if self.fill {
             circ = circ.set("fill", color);

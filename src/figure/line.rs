@@ -1,5 +1,6 @@
 use crate::figure::Figure;
 use crate::app_data::DrawProperties;
+use crate::svg_params::SvgParams;
 
 use druid::widget::prelude::*;
 use druid::{Color, Point};
@@ -62,13 +63,13 @@ impl Figure for MLine {
         ctx.stroke(Line::new(start, finish), &self.color, self.width);
     }
 
-    fn draw_on_image(&self, img: Document, scale: f64) -> Document {
+    fn draw_on_image(&self, img: Document, params: &SvgParams) -> Document {
         let line = SvgLine::new()
             .set("x1", self.start.x)
-            .set("y1", self.start.y)
+            .set("y1", params.size.height - self.start.y)
             .set("x2", self.finish.x)
-            .set("y2", self.finish.y)
-            .set("stroke-width", self.width / 10.)
+            .set("y2", params.size.height - self.finish.y)
+            .set("stroke-width", self.width * params.width_scale)
             .set("stroke", self.color_to_string(&self.color))
             .set("opacity", self.color.as_rgba().3 as f64);
         img.add(line)

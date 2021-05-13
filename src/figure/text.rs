@@ -1,5 +1,6 @@
 use crate::figure::Figure;
 use crate::app_data::DrawProperties;
+use crate::svg_params::SvgParams;
 
 use druid::widget::prelude::*;
 use druid::{Color, Point};
@@ -93,13 +94,17 @@ impl Figure for MText {
         ctx.draw_text(&layout, text_pos);
     }
 
-    fn draw_on_image(&self, img: Document, scale: f64) -> Document {
+    fn draw_on_image(&self, img: Document, params: &SvgParams) -> Document {
         let text = SvgText::new()
             .add(SvgText2::new(&self.text))
             .set("x", self.center.x)
-            .set("y", self.center.y)
+            .set("y", params.size.height - self.center.y)
             .set("fill", self.color_to_string(&self.color))
-            .set("font-size", self.font);
+            .set("font-size", self.font)
+            .set("text-anchor",       if self.alignment.0 == 'B' { "start" } else if self.alignment.0 == 'C' { "middle" } else { "end" })
+            .set("dominant-baseline", if self.alignment.1 == 'B' { "auto"  } else if self.alignment.1 == 'C' { "middle" } else { "hanging" })
+            .set("opacity", self.color.as_rgba().3 as f64)
+            .set("font-family", "system-ui");
         img.add(text)
     }
 

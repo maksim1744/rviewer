@@ -1,5 +1,6 @@
 use crate::figure::Figure;
 use crate::app_data::DrawProperties;
+use crate::svg_params::SvgParams;
 
 use druid::widget::prelude::*;
 use druid::{Color, Point};
@@ -43,7 +44,7 @@ impl Figure for MMessage {
         ctx.draw_text(&layout, Point::new(0.0, self.message_ind as f64 * text_size.height));
     }
 
-    fn draw_on_image(&self, img: Document, scale: f64) -> Document {
+    fn draw_on_image(&self, img: Document, _params: &SvgParams) -> Document {
         img
     }
 

@@ -1,11 +1,14 @@
 use crate::figure::Figure;
 use crate::app_data::DrawProperties;
+use crate::svg_params::SvgParams;
 use crate::poly::Poly;
 
 use druid::widget::prelude::*;
 use druid::{Color, Point};
 
 use svg::Document;
+use svg::node::element::Polygon as SvgPolygon;
+use svg::node::element::Polyline as SvgPolyline;
 
 pub struct MPoly {
     points: Vec<Point>,
@@ -67,9 +70,26 @@ impl Figure for MPoly {
         }
     }
 
-fn draw_on_image(&self, img: Document, scale: f64) -> Document {
-    img
-}
+    fn draw_on_image(&self, img: Document, params: &SvgParams) -> Document {
+        let color = self.color_to_string(&self.color);
+        let points = self.points.iter().map(|p| format!("{},{}", p.x, params.size.height - p.y)).collect::<Vec<_>>().join(" ");
+        if self.fill {
+            let poly = SvgPolygon::new()
+                .set("points", points)
+                .set("stroke-width", self.width * params.width_scale)
+                .set("opacity", self.color.as_rgba().3 as f64)
+                .set("fill", color);
+            img.add(poly)
+        } else {
+            let poly = SvgPolyline::new()
+                .set("points", points)
+                .set("stroke-width", self.width * params.width_scale)
+                .set("opacity", self.color.as_rgba().3 as f64)
+                .set("stroke", color)
+                .set("fill", "none");
+            img.add(poly)
+        }
+    }
 
     fn get_tags(&self) -> std::slice::Iter<'_, std::string::String> {
         self.tags.iter()
