@@ -8,3 +8,5 @@ edition = "2018"
 
 [dependencies]
 druid = { git = "https://github.com/linebender/druid.git" }
+
+svg = "0.9.1"

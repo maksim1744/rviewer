@@ -1,9 +1,13 @@
 use crate::figure::Figure;
 use crate::app_data::DrawProperties;
+use crate::svg_params::SvgParams;
 
 use druid::widget::prelude::*;
 use druid::{Color, Point};
 use druid::kurbo::Line;
+
+use svg::Document;
+use svg::node::element::Line as SvgLine;
 
 pub struct MLine {
     start: Point,
@@ -57,6 +61,18 @@ impl Figure for MLine {
         let start = transform(self.start);
         let finish = transform(self.finish);
         ctx.stroke(Line::new(start, finish), &self.color, self.width);
+    }
+
+    fn draw_on_image(&self, img: Document, params: &SvgParams) -> Document {
+        let line = SvgLine::new()
+            .set("x1", self.start.x)
+            .set("y1", params.size.height - self.start.y)
+            .set("x2", self.finish.x)
+            .set("y2", params.size.height - self.finish.y)
+            .set("stroke-width", self.width * params.width_scale)
+            .set("stroke", self.color_to_string(&self.color))
+            .set("opacity", self.color.as_rgba().3 as f64);
+        img.add(line)
     }
 
     fn get_tags(&self) -> std::slice::Iter<'_, std::string::String> {

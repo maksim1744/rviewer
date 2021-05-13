@@ -1,9 +1,12 @@
 use crate::app_data::DrawProperties;
+use crate::svg_params::SvgParams;
 
 use druid::widget::prelude::*;
-use druid::Point;
+use druid::{Point, Color};
 
 use std::collections::HashSet;
+
+use svg::Document;
 
 pub mod rect;
 pub use rect::MRect;
@@ -23,6 +26,8 @@ pub use message::MMessage;
 pub trait Figure {
     fn draw(&self, ctx: &mut PaintCtx, scale: f64, transform: &dyn Fn(Point) -> Point);
 
+    fn draw_on_image(&self, img: Document, params: &SvgParams) -> Document;
+
     fn get_tags(&self) -> std::slice::Iter<'_, std::string::String>;
 
     fn need_to_draw(&self, tags: &HashSet<String>) -> bool {
@@ -32,6 +37,11 @@ pub trait Figure {
         } else {
             self.get_tags().any(|x| tags.contains(x))
         }
+    }
+
+    fn color_to_string(&self, color: &Color) -> String {
+        let (r, g, b, _a) = color.as_rgba8();
+        format!("rgb({}, {}, {})", r, g, b)
     }
 }
 

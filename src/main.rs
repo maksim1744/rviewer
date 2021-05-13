@@ -4,6 +4,7 @@ use std::thread;
 
 use std::time::Duration;
 
+use std::fs;
 use std::fs::File;
 use std::io::{self, BufRead, Write};
 
@@ -12,10 +13,13 @@ use std::collections::HashSet;
 use druid::widget::prelude::*;
 use druid::widget::{Flex, Widget, MainAxisAlignment, CrossAxisAlignment, SizedBox, Label, Align};
 use druid::{Size, AppLauncher, WindowDesc, Point, WidgetExt, MouseButton, TimerToken};
-// use druid::Color;
+use druid::{MenuDesc, MenuItem, LocalizedString, Selector};
 use druid::Code;
 
-// use druid::piet::{FontFamily, Text, TextLayoutBuilder};
+use svg::Document;
+use svg::node::element::Rectangle as SvgRect;
+mod svg_params;
+use svg_params::SvgParams;
 
 mod app_data;
 mod figure;
@@ -51,6 +55,58 @@ impl DrawingWidget {
         p.x = (p.x - self.size.width / 2.0) / self.scale + self.center.x;
         p.y = (p.y - self.size.height / 2.0) / self.scale + self.center.y;
         p
+    }
+
+    fn internal_save_frame(&self, data: &AppData, frame: usize, file_name: String) {
+        let size = data.size.lock().unwrap().clone();
+
+        let mut img = Document::new()
+            .set("viewBox", (0, 0, size.width, size.height))
+            .set("width", size.width)
+            .set("height", size.height);
+
+        let enabled_tags = data.tags.lock().unwrap().iter().filter(|(_, b)| *b).map(|(tag, _)| tag.clone()).collect::<HashSet<String>>();
+
+        let frame = &data.frames.lock().unwrap()[frame];
+
+        let rect = SvgRect::new()
+            .set("x", 0)
+            .set("y", 0)
+            .set("width", size.width)
+            .set("height", size.height)
+            .set("fill", "rgb(41, 41, 41)");
+        img = img.add(rect);
+
+        let params = SvgParams {
+            size: size.clone(),
+            width_scale: data.svg_width_scale,
+        };
+
+        for ind in frame.iter() {
+            let item = &data.objects.lock().unwrap()[*ind];
+            if item.need_to_draw(&enabled_tags) {
+                img = item.draw_on_image(img, &params);
+            }
+        }
+
+        svg::save(file_name, &img).unwrap();
+    }
+
+    fn save_frame(&self, data: &AppData) {
+        if data.frame >= data.frames.lock().unwrap().len() {
+            return;
+        }
+
+        self.internal_save_frame(data, data.frame, "frame.svg".to_string());
+    }
+
+    fn save_all_frames(&self, data: &AppData) {
+        fs::create_dir_all("frames").unwrap();
+
+        let total_frames = data.frames.lock().unwrap().len();
+        for frame in 0..total_frames {
+            self.internal_save_frame(data, frame, format!("frames/{:05}.svg", frame + 1));
+        }
     }
 }
 
@@ -129,7 +185,12 @@ impl Widget<AppData> for DrawingWidget {
                     }
                 }
             },
-            Event::Command(_) => {
+            Event::Command(c) => {
+                if c.is::<()>(Selector::new("save_frame")) {
+                    self.save_frame(data);
+                } else if c.is::<()>(Selector::new("save_all_frames")) {
+                    self.save_all_frames(data);
+                }
                 ctx.request_paint();
             },
             _ => (),
@@ -240,6 +301,7 @@ fn main() {
             size: size_ptr,
             tags: tags_ptr,
             draw_properties: draw_properties_ptr,
+            svg_width_scale: 0.3,
             finished: finished_ptr,
         };
 
@@ -248,6 +310,12 @@ fn main() {
                 width: 800.0,
                 height: 600.0,
             })
+            .menu(MenuDesc::new(LocalizedString::new("my title"))
+                .append(
+                    MenuItem::new(LocalizedString::new("Save frame"), Selector::new("save_frame")))
+                .append(
+                    MenuItem::new(LocalizedString::new("Save all frames"), Selector::new("save_all_frames")))
+                )
             .resizable(true)
             .title("Viewer");
         AppLauncher::with_window(window)

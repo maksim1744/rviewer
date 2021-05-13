@@ -1,10 +1,15 @@
 use crate::figure::Figure;
 use crate::app_data::DrawProperties;
+use crate::svg_params::SvgParams;
 
 use druid::widget::prelude::*;
 use druid::{Color, Point};
 
 use druid::piet::{FontFamily, Text, TextLayoutBuilder, TextLayout};
+
+use svg::Document;
+use svg::node::element::Text as SvgText;
+use svg::node::Text as SvgText2;
 
 pub struct MText {
     center: Point,
@@ -87,6 +92,20 @@ impl Figure for MText {
         text_pos.y -= text_size.height / 2.0;
 
         ctx.draw_text(&layout, text_pos);
+    }
+
+    fn draw_on_image(&self, img: Document, params: &SvgParams) -> Document {
+        let text = SvgText::new()
+            .add(SvgText2::new(&self.text))
+            .set("x", self.center.x)
+            .set("y", params.size.height - self.center.y)
+            .set("fill", self.color_to_string(&self.color))
+            .set("font-size", self.font)
+            .set("text-anchor",       if self.alignment.0 == 'B' { "start" } else if self.alignment.0 == 'C' { "middle" } else { "end" })
+            .set("dominant-baseline", if self.alignment.1 == 'B' { "auto"  } else if self.alignment.1 == 'C' { "middle" } else { "hanging" })
+            .set("opacity", self.color.as_rgba().3 as f64)
+            .set("font-family", "system-ui");
+        img.add(text)
     }
 
     fn get_tags(&self) -> std::slice::Iter<'_, std::string::String> {

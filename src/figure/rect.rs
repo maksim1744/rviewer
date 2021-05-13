@@ -1,8 +1,12 @@
 use crate::figure::Figure;
 use crate::app_data::DrawProperties;
+use crate::svg_params::SvgParams;
 
 use druid::widget::prelude::*;
 use druid::{Color, Point, Rect};
+
+use svg::Document;
+use svg::node::element::Rectangle as SvgRect;
 
 pub struct MRect {
     center: Point,
@@ -84,6 +88,34 @@ impl Figure for MRect {
         } else {
             ctx.stroke(rect, &self.color, self.width);
         }
+    }
+
+    fn draw_on_image(&self, img: Document, params: &SvgParams) -> Document {
+        let color = self.color_to_string(&self.color);
+        let mut center = self.center;
+        if self.alignment.0 == 'B' {
+            center.x += self.size.x / 2.;
+        } else if self.alignment.0 == 'E' {
+            center.x -= self.size.x / 2.;
+        }
+        if self.alignment.1 == 'B' {
+            center.y += self.size.y / 2.;
+        } else if self.alignment.1 == 'E' {
+            center.y -= self.size.y / 2.;
+        }
+        let mut rect = SvgRect::new()
+            .set("x", center.x - self.size.x / 2.0)
+            .set("y", params.size.height - (center.y + self.size.y / 2.0))
+            .set("width", self.size.x)
+            .set("height", self.size.y)
+            .set("stroke-width", self.width * params.width_scale)
+            .set("opacity", self.color.as_rgba().3 as f64);
+        if self.fill {
+            rect = rect.set("fill", color);
+        } else {
+            rect = rect.set("fill", "none").set("stroke", color);
+        }
+        img.add(rect)
     }
 
     fn get_tags(&self) -> std::slice::Iter<'_, std::string::String> {

@@ -38,7 +38,7 @@ int main() {
     }
     double W = 10;
 
-    Init().size({W * (m + 1), W * (n + 1)}).speed(1.5);
+    Init().size({W * (m + 2), W * (n + 2)}).speed(1.5);
     Grid({W, W}, {W*m, W*n}, {m, n}).align(Alignment::BEGIN, Alignment::BEGIN).width(0.5).color(Color::white);
 
     for (int i = 0; i < n; ++i) {
