@@ -13,13 +13,20 @@ use std::collections::HashSet;
 use druid::widget::prelude::*;
 use druid::widget::{Flex, Widget, MainAxisAlignment, CrossAxisAlignment, SizedBox, Label, Align};
 use druid::{Size, AppLauncher, WindowDesc, Point, WidgetExt, MouseButton, TimerToken};
-use druid::{MenuDesc, MenuItem, LocalizedString, Selector};
+use druid::{Menu, MenuItem};
+use druid::{Command, Selector, Target};
 use druid::Code;
+use druid::WindowId;
 
 use svg::Document;
 use svg::node::element::Rectangle as SvgRect;
 mod svg_params;
 use svg_params::SvgParams;
+
+use threadpool::ThreadPool;
+
+mod settings;
+use settings::Settings;
 
 mod app_data;
 mod figure;
@@ -57,7 +64,7 @@ impl DrawingWidget {
         p
     }
 
-    fn internal_save_frame(&self, data: &AppData, frame: usize, file_name: String) {
+    fn internal_save_frame_as_svg(&self, data: &AppData, frame: usize, file_name: &str) {
         let size = data.size.lock().unwrap().clone();
 
         let mut img = Document::new()
@@ -92,21 +99,100 @@ impl DrawingWidget {
         svg::save(file_name, &img).unwrap();
     }
 
-    fn save_frame(&self, data: &AppData) {
+    fn internal_save_frame_as_png(&self, data: &AppData, frame: usize, file_name: &str) -> std::thread::JoinHandle<()> {
+        let svg_file_name = format!("_tmp_frame_{}_.svg", frame);
+        self.internal_save_frame_as_svg(data, frame, &svg_file_name);
+        let settings = get_settings();
+
+        let png_file = Arc::new(Mutex::new(file_name.to_string().clone()));
+        let svg_file = Arc::new(Mutex::new(svg_file_name.to_string().clone()));
+
+        thread::spawn(move || {
+            std::process::Command::new(settings.inkscape_path)
+                    .arg("-o")
+                    .arg(&*png_file.lock().unwrap())
+                    .arg("-w")
+                    .arg(settings.frame_resolution.to_string())
+                    .arg(&*svg_file.lock().unwrap())
+                    .output().unwrap();
+            fs::remove_file(&*svg_file.lock().unwrap()).unwrap()
+        })
+    }
+
+    fn save_frame_as_svg(&self, data: &AppData) {
         if data.frame >= data.frames.lock().unwrap().len() {
             return;
         }
 
-        self.internal_save_frame(data, data.frame, "frame.svg".to_string());
+        let frame = data.frame;
+        self.internal_save_frame_as_svg(data, frame, "frame.svg");
+        println!("Saved frame {} as frame.svg", frame + 1);
     }
 
-    fn save_all_frames(&self, data: &AppData) {
+    fn save_all_frames_as_svg(&self, data: &AppData) {
         fs::create_dir_all("frames").unwrap();
 
         let total_frames = data.frames.lock().unwrap().len();
         for frame in 0..total_frames {
-            self.internal_save_frame(data, frame, format!("frames/{:05}.svg", frame + 1));
+            print!("\rSaving frame {}/{}", frame + 1, total_frames);
+            io::stdout().flush().unwrap();
+            self.internal_save_frame_as_svg(data, frame, &format!("frames/{:05}.svg", frame + 1));
         }
+        println!("\r{} frames saved in folder frames", total_frames);
+    }
+
+    fn save_frame_as_png(&self, data: &AppData) {
+        if data.frame >= data.frames.lock().unwrap().len() {
+            return;
+        }
+
+        let frame = data.frame;
+        let handle = self.internal_save_frame_as_png(data, frame, "frame.png");
+        thread::spawn(move || {
+            handle.join().unwrap();
+            println!("Saved frame {} as frame.png", frame + 1);
+        });
+    }
+
+    fn save_all_frames_as_png(&self, data: &AppData) {
+        fs::create_dir_all("frames").unwrap();
+
+        let total_frames = data.frames.lock().unwrap().len();
+        let settings = get_settings();
+        let pool = ThreadPool::new(settings.max_threads);
+        for frame in 0..total_frames {
+            let svg_file = format!("frames/_tmp_frame_{}_.svg", frame);
+            self.internal_save_frame_as_svg(data, frame, &svg_file);
+
+            print!("\rCreated svg {}/{}", frame + 1, total_frames);
+            io::stdout().flush().unwrap();
+        }
+
+        for frame in 0..total_frames {
+            let svg_file = format!("frames/_tmp_frame_{}_.svg", frame);
+            let png_file = format!("frames/{:05}.png", frame);
+            let inkscape_path = settings.inkscape_path.clone();
+            let frame_resolution = settings.frame_resolution;
+
+            pool.execute(move || {
+                std::process::Command::new(inkscape_path)
+                        .arg("-o")
+                        .arg(&png_file)
+                        .arg("-w")
+                        .arg(frame_resolution.to_string())
+                        .arg(&svg_file)
+                        .output().unwrap();
+                fs::remove_file(&svg_file).unwrap();
+                print!("\rSaved frame {}/{}", frame + 1, total_frames);
+                io::stdout().flush().unwrap();
+            });
+        }
+        print!("\r                               ");
+
+        thread::spawn(move || {
+            pool.join();
+            println!("\rSaved {} frames in folder frames", total_frames);
+        });
     }
 }
 
@@ -186,10 +272,14 @@ impl Widget<AppData> for DrawingWidget {
                 }
             },
             Event::Command(c) => {
-                if c.is::<()>(Selector::new("save_frame")) {
-                    self.save_frame(data);
-                } else if c.is::<()>(Selector::new("save_all_frames")) {
-                    self.save_all_frames(data);
+                if c.is::<()>(Selector::new("save_frame_as_svg")) {
+                    self.save_frame_as_svg(data);
+                } else if c.is::<()>(Selector::new("save_frame_as_png")) {
+                    self.save_frame_as_png(data);
+                } else if c.is::<()>(Selector::new("save_all_frames_as_svg")) {
+                    self.save_all_frames_as_svg(data);
+                } else if c.is::<()>(Selector::new("save_all_frames_as_png")) {
+                    self.save_all_frames_as_png(data);
                 }
                 ctx.request_paint();
             },
@@ -305,17 +395,12 @@ fn main() {
             finished: finished_ptr,
         };
 
-        let window = WindowDesc::new(make_layout)
+        let window = WindowDesc::new(make_layout())
             .window_size(Size {
                 width: 800.0,
                 height: 600.0,
             })
-            .menu(MenuDesc::new(LocalizedString::new("my title"))
-                .append(
-                    MenuItem::new(LocalizedString::new("Save frame"), Selector::new("save_frame")))
-                .append(
-                    MenuItem::new(LocalizedString::new("Save all frames"), Selector::new("save_all_frames")))
-                )
+            .menu(make_menu)
             .resizable(true)
             .title("Viewer");
         AppLauncher::with_window(window)
@@ -407,6 +492,14 @@ fn main() {
     handle.join().unwrap();
 }
 
+fn make_menu(_id: Option<WindowId>, _data: &AppData, _env: &Env) -> Menu<AppData> {
+    Menu::new("my title")
+        .entry(MenuItem::new("Save frame as svg").command(Command::new(Selector::new("save_frame_as_svg"), (), Target::Auto)))
+        .entry(MenuItem::new("Save frame as png").command(Command::new(Selector::new("save_frame_as_png"), (), Target::Auto)))
+        .entry(MenuItem::new("Save all frames as svg").command(Command::new(Selector::new("save_all_frames_as_svg"), (), Target::Auto)))
+        .entry(MenuItem::new("Save all frames as png").command(Command::new(Selector::new("save_all_frames_as_png"), (), Target::Auto)))
+}
+
 fn make_layout() -> impl Widget<AppData> {
     let drawing_widget_id = WidgetId::next();
 
@@ -451,4 +544,30 @@ fn make_layout() -> impl Widget<AppData> {
         .cross_axis_alignment(CrossAxisAlignment::Start)
         .main_axis_alignment(MainAxisAlignment::End)
         .padding(PADDING)
+}
+
+fn get_settings() -> Settings {
+    let mut path = std::env::current_exe().unwrap();
+    path.pop();
+    path.push("settings.json");
+    let path = path.as_path();
+    if !path.is_file() {
+        let settings = Settings {
+            inkscape_path: "C:/Program files/Inkscape/bin/inkscape.exe".to_string(),
+            frame_resolution: 1080,
+            max_threads: 4,
+        };
+
+        std::fs::File::create(path).unwrap().write_all(serde_json::to_string_pretty(&settings).unwrap().as_bytes()).unwrap();
+
+        return settings;
+    }
+    let settings: Settings = match serde_json::from_str(&fs::read_to_string(path).unwrap()) {
+        Ok(x) => x,
+        Err(_) => {
+            eprintln!("Can't parse json from \"settings.json\"");
+            std::process::exit(1);
+        }
+    };
+    settings
 }

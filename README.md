@@ -99,6 +99,9 @@ Examples can be found in [examples](/examples) folder. The simple program will l
 + Pause and continue with space
 + Fit picture to screen size with `0`
 
+## Export frames
+Currently exporting animation is not supported. Available options are either export one/all frames as `svg`, or one/all frames as `png`, then you can make video from frames using [ffmpeg](https://www.ffmpeg.org/) or [OpenCV](https://theailearner.com/2018/10/15/creating-video-from-images-using-opencv-python/). You can configure some settings for convertion in file `settings.json` in the folder with `rviewer.exe` (it will be created on first attempt to create `png`). [Inkscape](https://inkscape.org/release) is used to convert `svg` to `png`, it's location is specified in settings file. Be aware that creating `svg` files is much faster than covertion to `png`, so you may want to use another tool. However, make sure that text renders correctly, mainly vertical alignment and font. This was the main reason for using Inkscape instead of rust libraries.
+
 ## Build
 Download cargo from [official website](https://doc.rust-lang.org/cargo/getting-started/installation.html), clone this repo and call `cd rviewer` and `cargo build --release`. All files in `target` repository can be deleted after build, except for `rviewer.exe`. If you use Linux, you may be interested in reading [requirements](https://github.com/linebender/druid#linux) for graphics library.
 

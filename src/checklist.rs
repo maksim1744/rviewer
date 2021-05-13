@@ -124,7 +124,7 @@ impl Widget<Arc<Mutex<Vec<(String, bool)>>>> for Checklist {
                     .line_cap(LineCap::Round)
                     .line_join(LineJoin::Round);
 
-                ctx.stroke_styled(path, &env.get(theme::LABEL_COLOR), 2., &style);
+                ctx.stroke_styled(path, &env.get(theme::TEXT_COLOR), 2., &style);
             }
 
             let text = ctx.text();
