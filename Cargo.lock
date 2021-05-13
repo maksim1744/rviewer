@@ -1176,6 +1176,7 @@ dependencies = [
  "druid",
  "serde",
  "serde_json",
+ "subprocess",
  "svg",
  "threadpool",
 ]
@@ -1345,6 +1346,16 @@ dependencies = [
  "proc-macro2",
  "quote",
  "syn",
+]
+
+[[package]]
+name = "subprocess"
+version = "0.2.7"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "334b801f9ca2529ba9605109f1d2835f15aff94cd6cfe5afe6ce8cf71e5fd3c4"
+dependencies = [
+ "libc",
+ "winapi",
 ]
 
 [[package]]

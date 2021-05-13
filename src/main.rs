@@ -25,6 +25,8 @@ use svg_params::SvgParams;
 
 use threadpool::ThreadPool;
 
+use subprocess::{Popen, PopenConfig};
+
 mod settings;
 use settings::Settings;
 
@@ -175,13 +177,21 @@ impl DrawingWidget {
             let frame_resolution = settings.frame_resolution;
 
             pool.execute(move || {
-                std::process::Command::new(inkscape_path)
-                        .arg("-o")
-                        .arg(&png_file)
-                        .arg("-w")
-                        .arg(frame_resolution.to_string())
-                        .arg(&svg_file)
-                        .output().unwrap();
+                let mut timeout = 30;
+                loop {
+                    let mut p = Popen::create(
+                        &[inkscape_path.clone(), "-o".to_string(), png_file.clone(), "-w".to_string(), frame_resolution.to_string(), svg_file.clone()],
+                        PopenConfig::default()).unwrap();
+
+                    p.wait_timeout(Duration::from_secs(timeout)).unwrap();
+                    if let None = p.poll() {
+                        p.terminate().unwrap();
+                        eprintln!("\rFrame {} failed       ", &frame);
+                        timeout += 30;
+                        continue;
+                    }
+                    break;
+                }
                 fs::remove_file(&svg_file).unwrap();
                 print!("\rSaved frame {}/{}", frame + 1, total_frames);
                 io::stdout().flush().unwrap();
