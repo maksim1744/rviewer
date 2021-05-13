@@ -10,6 +10,8 @@ Or screenshot of a working program from an actual competition:
 
 <img src="images/image1.png" width="800">
 
+_Full animation is in folder [images](/images)_
+
 It can read input file online, i.e. you can call it like `main.exe | rviewer.exe` and it will draw animation as it reads frames from `main.exe`.
 
 ## File format
@@ -101,7 +103,15 @@ Examples can be found in [examples](/examples) folder. The simple program will l
 + Fit picture to screen size with `0`
 
 ## Export frames
-Currently exporting animation is not supported. Available options are either export one/all frames as `svg`, or one/all frames as `png`, then you can make video from frames using [ffmpeg](https://www.ffmpeg.org/) or [OpenCV](https://theailearner.com/2018/10/15/creating-video-from-images-using-opencv-python/). You can configure some settings for convertion in file `settings.json` in the folder with `rviewer.exe` (it will be created on first attempt to create `png`). [Inkscape](https://inkscape.org/release) is used to convert `svg` to `png`, it's location is specified in settings file. Be aware that creating `svg` files is much faster than covertion to `png`, so you may want to use another tool. However, make sure that text renders correctly, mainly vertical alignment and font. This was the main reason for using Inkscape instead of rust libraries.
+Currently exporting animation is not supported. Available options are either export one/all frames as `svg`, or one/all frames as `png`. You can configure some settings for convertion in file `settings.json` in the folder with `rviewer.exe` (it will be created on first attempt to create `png`). [Inkscape](https://inkscape.org/release) is used to convert `svg` to `png`, it's location is specified in settings file. Be aware that creating `svg` files is much faster than covertion to `png`, so you may want to use another tool. However, make sure that text renders correctly, mainly vertical alignment and font. This was the main reason for using Inkscape instead of rust libraries.
+
+To make animation from `png` images, you can use [ffmpeg](https://www.ffmpeg.org/):
+```bash
+# 25 frames per second
+ffmpeg -r 25 -i "%05d.png" -c:v libx264 -vf "pad=ceil(iw/2)*2:ceil(ih/2)*2" -pix_fmt yuv420p out.mp4
+# convert video to gif, make sure to use correct scale
+ffmpeg -i out.mp4 -vf "fps=25,scale=1080:-1:flags=lanczos,split[s0][s1];[s0]palettegen[p];[s1][p]paletteuse" -loop 0 out.gif
+```
 
 ## Build
 Download cargo from [official website](https://doc.rust-lang.org/cargo/getting-started/installation.html), clone this repo and call `cd rviewer` and `cargo build --release`. All files in `target` repository can be deleted after build, except for `rviewer.exe`. If you use Linux, you may be interested in reading [requirements](https://github.com/linebender/druid#linux) for graphics library.
