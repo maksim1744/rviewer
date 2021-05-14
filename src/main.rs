@@ -109,16 +109,29 @@ impl DrawingWidget {
         let png_file = Arc::new(Mutex::new(file_name.to_string().clone()));
         let svg_file = Arc::new(Mutex::new(svg_file_name.to_string().clone()));
 
-        thread::spawn(move || {
-            std::process::Command::new(settings.inkscape_path)
-                    .arg("-o")
-                    .arg(&*png_file.lock().unwrap())
-                    .arg("-w")
-                    .arg(settings.frame_resolution.to_string())
-                    .arg(&*svg_file.lock().unwrap())
-                    .output().unwrap();
-            fs::remove_file(&*svg_file.lock().unwrap()).unwrap()
-        })
+        if settings.conversion_tool.as_ref().unwrap() == "rsvg-convert" {
+            thread::spawn(move || {
+                std::process::Command::new("rsvg-convert".to_string())
+                        .arg(&*svg_file.lock().unwrap())
+                        .arg("-o")
+                        .arg(&*png_file.lock().unwrap())
+                        .arg("-w")
+                        .arg(settings.frame_resolution.unwrap().to_string())
+                        .output().unwrap();
+                fs::remove_file(&*svg_file.lock().unwrap()).unwrap()
+            })
+        } else {
+            thread::spawn(move || {
+                std::process::Command::new(settings.inkscape_path.unwrap())
+                        .arg("-o")
+                        .arg(&*png_file.lock().unwrap())
+                        .arg("-w")
+                        .arg(settings.frame_resolution.unwrap().to_string())
+                        .arg(&*svg_file.lock().unwrap())
+                        .output().unwrap();
+                fs::remove_file(&*svg_file.lock().unwrap()).unwrap()
+            })
+        }
     }
 
     fn save_frame_as_svg(&self, data: &AppData) {
@@ -161,7 +174,7 @@ impl DrawingWidget {
 
         let total_frames = data.frames.lock().unwrap().len();
         let settings = get_settings();
-        let pool = ThreadPool::new(settings.max_threads);
+        let pool = ThreadPool::new(settings.max_threads.unwrap());
         for frame in 0..total_frames {
             let svg_file = format!("frames/_tmp_frame_{}_.svg", frame + 1);
             self.internal_save_frame_as_svg(data, frame, &svg_file);
@@ -173,29 +186,48 @@ impl DrawingWidget {
         for frame in 0..total_frames {
             let svg_file = format!("frames/_tmp_frame_{}_.svg", frame + 1);
             let png_file = format!("frames/{:05}.png", frame + 1);
-            let inkscape_path = settings.inkscape_path.clone();
-            let frame_resolution = settings.frame_resolution;
+            let inkscape_path = settings.inkscape_path.clone().unwrap();
+            let frame_resolution = settings.frame_resolution.unwrap();
 
-            pool.execute(move || {
-                let mut timeout = 30;
-                loop {
-                    let mut p = Popen::create(
-                        &[inkscape_path.clone(), "-o".to_string(), png_file.clone(), "-w".to_string(), frame_resolution.to_string(), svg_file.clone()],
-                        PopenConfig::default()).unwrap();
+            if settings.conversion_tool.as_ref().unwrap() == "rsvg-convert" {
+                pool.execute(move || {
+                    std::process::Command::new("rsvg-convert".to_string())
+                            .arg(&svg_file)
+                            .arg("-o")
+                            .arg(&png_file)
+                            .arg("-w")
+                            .arg(frame_resolution.to_string())
+                            .output().unwrap();
+                    fs::remove_file(&svg_file).unwrap();
+                    print!("\rSaved frame {}/{}", frame + 1, total_frames);
+                    io::stdout().flush().unwrap();
+                });
+            } else {
+                pool.execute(move || {
+                    let mut timeout = 30;
+                    loop {
+                        let mut p = Popen::create(
+                            &[inkscape_path.clone(), "-o".to_string(), png_file.clone(), "-w".to_string(), frame_resolution.to_string(), svg_file.clone()],
+                            PopenConfig::default()).unwrap();
 
-                    p.wait_timeout(Duration::from_secs(timeout)).unwrap();
-                    if let None = p.poll() {
-                        p.terminate().unwrap();
-                        eprintln!("\rFrame {} failed       ", &frame);
-                        timeout += 30;
-                        continue;
+                        p.wait_timeout(Duration::from_secs(timeout)).unwrap();
+                        if let None = p.poll() {
+                            p.terminate().unwrap();
+                            eprintln!("\rFrame {} failed       ", &frame);
+                            if timeout == 90 {
+                                eprintln!("\rMax attempts for frame {} reached", &frame);
+                                break;
+                            }
+                            timeout += 30;
+                            continue;
+                        }
+                        break;
                     }
-                    break;
-                }
-                fs::remove_file(&svg_file).unwrap();
-                print!("\rSaved frame {}/{}", frame + 1, total_frames);
-                io::stdout().flush().unwrap();
-            });
+                    fs::remove_file(&svg_file).unwrap();
+                    print!("\rSaved frame {}/{}", frame + 1, total_frames);
+                    io::stdout().flush().unwrap();
+                });
+            }
         }
         print!("\r                               ");
 
@@ -567,22 +599,30 @@ fn get_settings() -> Settings {
     path.push("settings.json");
     let path = path.as_path();
     if !path.is_file() {
-        let settings = Settings {
-            inkscape_path: "C:/Program files/Inkscape/bin/inkscape.exe".to_string(),
-            frame_resolution: 1080,
-            max_threads: 4,
-        };
-
-        std::fs::File::create(path).unwrap().write_all(serde_json::to_string_pretty(&settings).unwrap().as_bytes()).unwrap();
-
-        return settings;
+        std::fs::File::create(path).unwrap().write_all("{}".to_string().as_bytes()).unwrap();
     }
-    let settings: Settings = match serde_json::from_str(&fs::read_to_string(path).unwrap()) {
+    let mut settings: Settings = match serde_json::from_str(&fs::read_to_string(path).unwrap()) {
         Ok(x) => x,
         Err(_) => {
             eprintln!("Can't parse json from \"settings.json\"");
             std::process::exit(1);
         }
     };
+
+    if settings.conversion_tool.is_none() {
+        settings.conversion_tool = Some("rsvg-convert".to_string());
+    }
+    if settings.inkscape_path.is_none() {
+        settings.inkscape_path = Some("C:/Program files/Inkscape/bin/inkscape.exe".to_string());
+    }
+    if settings.frame_resolution.is_none() {
+        settings.frame_resolution = Some(1080);
+    }
+    if settings.max_threads.is_none() {
+        settings.max_threads = Some(4);
+    }
+
+    std::fs::File::create(path).unwrap().write_all(serde_json::to_string_pretty(&settings).unwrap().as_bytes()).unwrap();
+
     settings
 }
