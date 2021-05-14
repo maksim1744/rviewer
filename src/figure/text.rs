@@ -11,6 +11,9 @@ use svg::Document;
 use svg::node::element::Text as SvgText;
 use svg::node::Text as SvgText2;
 
+// used for vertical alignment
+const K_VERTICAL_AL: f64 = 0.5;
+
 pub struct MText {
     center: Point,
     text: String,
@@ -69,7 +72,6 @@ impl Figure for MText {
             .new_text_layout(self.text.clone())
             .font(FontFamily::SYSTEM_UI, font)
             .text_color(self.color.clone())
-            // .alignment(TextAlignment::Start)
             .build()
             .unwrap();
 
@@ -82,9 +84,9 @@ impl Figure for MText {
             center.x -= text_size.width / 2.;
         }
         if self.alignment.1 == 'B' {
-            center.y -= text_size.height / 2.;
+            center.y -= font * K_VERTICAL_AL;
         } else if self.alignment.1 == 'E' {
-            center.y += text_size.height / 2.;
+            center.y += font * K_VERTICAL_AL;
         }
 
         let mut text_pos = center;
@@ -95,14 +97,19 @@ impl Figure for MText {
     }
 
     fn draw_on_image(&self, img: Document, params: &SvgParams) -> Document {
+        let mut y = params.size.height - self.center.y + self.font * 0.4;
+        if self.alignment.1 == 'B' {
+            y -= self.font * K_VERTICAL_AL;
+        } else if self.alignment.1 == 'E' {
+            y += self.font * K_VERTICAL_AL;
+        }
         let text = SvgText::new()
             .add(SvgText2::new(&self.text))
             .set("x", self.center.x)
-            .set("y", params.size.height - self.center.y)
+            .set("y", y)
             .set("fill", self.color_to_string(&self.color))
             .set("font-size", self.font)
             .set("text-anchor",       if self.alignment.0 == 'B' { "start" } else if self.alignment.0 == 'C' { "middle" } else { "end" })
-            .set("dominant-baseline", if self.alignment.1 == 'B' { "auto"  } else if self.alignment.1 == 'C' { "middle" } else { "hanging" })
             .set("opacity", self.color.as_rgba().3 as f64)
             .set("font-family", "system-ui");
         img.add(text)

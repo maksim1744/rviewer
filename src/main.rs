@@ -163,7 +163,7 @@ impl DrawingWidget {
         let settings = get_settings();
         let pool = ThreadPool::new(settings.max_threads);
         for frame in 0..total_frames {
-            let svg_file = format!("frames/_tmp_frame_{}_.svg", frame);
+            let svg_file = format!("frames/_tmp_frame_{}_.svg", frame + 1);
             self.internal_save_frame_as_svg(data, frame, &svg_file);
 
             print!("\rCreated svg {}/{}", frame + 1, total_frames);
@@ -171,8 +171,8 @@ impl DrawingWidget {
         }
 
         for frame in 0..total_frames {
-            let svg_file = format!("frames/_tmp_frame_{}_.svg", frame);
-            let png_file = format!("frames/{:05}.png", frame);
+            let svg_file = format!("frames/_tmp_frame_{}_.svg", frame + 1);
+            let png_file = format!("frames/{:05}.png", frame + 1);
             let inkscape_path = settings.inkscape_path.clone();
             let frame_resolution = settings.frame_resolution;
 
