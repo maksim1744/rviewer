@@ -103,7 +103,7 @@ Examples can be found in [examples](/examples) folder. The simple program will l
 + Fit picture to screen size with `0`
 
 ## Export frames
-Currently exporting animation is not supported. Available options are either export one/all frames as `svg`, or one/all frames as `png`. You can configure some settings for convertion in file `settings.json` in the folder with `rviewer.exe` (it will be created on first attempt to create `png`). [Inkscape](https://inkscape.org/release) is used to convert `svg` to `png`, it's location is specified in settings file. Be aware that creating `svg` files is much faster than covertion to `png`, so you may want to use another tool. However, make sure that text renders correctly, mainly vertical alignment and font. This was the main reason for using Inkscape instead of rust libraries.
+Currently exporting animation is not supported. Available options are either export one/all frames as `svg`, or one/all frames as `png`. You can configure some settings for convertion in file `settings.json` in the folder with `rviewer.exe` (it will be created on first attempt to create `png`). Conversion can be done using [Inkscape](https://inkscape.org/release) or [rsvg-convert](http://manpages.ubuntu.com/manpages/xenial/man1/rsvg-convert.1.html) (for windows you can download [here](https://community.chocolatey.org/packages/rsvg-convert)). You can specify preferred option in settings with parameter `conversion_tool`: either `rsvg-convert` or `inkscape`. It is strongly suggested to use `rsvg-convert`, because it is much faster.
 
 To make animation from `png` images, you can use [ffmpeg](https://www.ffmpeg.org/):
 ```bash
