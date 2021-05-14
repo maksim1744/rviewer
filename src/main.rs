@@ -25,7 +25,7 @@ use svg_params::SvgParams;
 
 use threadpool::ThreadPool;
 
-use subprocess::{Popen, PopenConfig};
+use subprocess::{Popen, PopenConfig, Redirection};
 
 mod settings;
 use settings::Settings;
@@ -236,6 +236,23 @@ impl DrawingWidget {
             println!("\rSaved {} frames in folder frames", total_frames);
         });
     }
+
+    fn make_video_from_frames(&self, data: &AppData) {
+        let fps = *data.fps_speed.lock().unwrap();
+        thread::spawn(move || {
+            match fs::remove_file("video.mp4".to_string()) {
+                _ => {}
+            };
+            let mut p = Popen::create(&format!("ffmpeg -r {} -i frames/%05d.png -c:v libx264 -vf pad=ceil(iw/2)*2:ceil(ih/2)*2 -pix_fmt yuv420p video.mp4", 1. / fps)
+                .split_whitespace().collect::<Vec<_>>(), PopenConfig {
+                stdin: Redirection::Pipe,
+                stdout: Redirection::Pipe,
+                ..Default::default()
+            }).unwrap();
+            p.wait().unwrap();
+            println!("Video created");
+        });
+    }
 }
 
 impl Widget<AppData> for DrawingWidget {
@@ -322,6 +339,8 @@ impl Widget<AppData> for DrawingWidget {
                     self.save_all_frames_as_svg(data);
                 } else if c.is::<()>(Selector::new("save_all_frames_as_png")) {
                     self.save_all_frames_as_png(data);
+                } else if c.is::<()>(Selector::new("make_video_from_frames")) {
+                    self.make_video_from_frames(data);
                 }
                 ctx.request_paint();
             },
@@ -545,6 +564,7 @@ fn make_menu(_id: Option<WindowId>, _data: &AppData, _env: &Env) -> Menu<AppData
         .entry(MenuItem::new("Save frame as png").command(Command::new(Selector::new("save_frame_as_png"), (), Target::Auto)))
         .entry(MenuItem::new("Save all frames as svg").command(Command::new(Selector::new("save_all_frames_as_svg"), (), Target::Auto)))
         .entry(MenuItem::new("Save all frames as png").command(Command::new(Selector::new("save_all_frames_as_png"), (), Target::Auto)))
+        .entry(MenuItem::new("Make video from frames").command(Command::new(Selector::new("make_video_from_frames"), (), Target::Auto)))
 }
 
 fn make_layout() -> impl Widget<AppData> {

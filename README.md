@@ -102,16 +102,18 @@ Examples can be found in [examples](/examples) folder. The simple program will l
 + Pause and continue with space
 + Fit picture to screen size with `0`
 
-## Export frames
-Currently exporting animation is not supported. Available options are either export one/all frames as `svg`, or one/all frames as `png`. You can configure some settings for convertion in file `settings.json` in the folder with `rviewer.exe` (it will be created on first attempt to create `png`). Conversion can be done using [Inkscape](https://inkscape.org/release) or [rsvg-convert](http://manpages.ubuntu.com/manpages/xenial/man1/rsvg-convert.1.html) (for windows you can download [here](https://community.chocolatey.org/packages/rsvg-convert)). You can specify preferred option in settings with parameter `conversion_tool`: either `rsvg-convert` or `inkscape`. It is strongly suggested to use `rsvg-convert`, because it is much faster.
+## Export animation
+`rviewer` can export one/all frames as `svg`, or one/all frames as `png`. You can configure some settings for convertion in file `settings.json` in the folder with `rviewer.exe` (it will be created on first attempt to create `png`). Conversion can be done using [Inkscape](https://inkscape.org/release) or [rsvg-convert](http://manpages.ubuntu.com/manpages/xenial/man1/rsvg-convert.1.html) (for windows you can download [here](https://community.chocolatey.org/packages/rsvg-convert)). You can specify preferred option in settings with parameter `conversion_tool`: either `rsvg-convert` or `inkscape`. It is strongly suggested to use `rsvg-convert`, because it is much faster.
 
 To make animation from `png` images, you can use [ffmpeg](https://www.ffmpeg.org/):
 ```bash
 # 25 frames per second
-ffmpeg -r 25 -i "%05d.png" -c:v libx264 -vf "pad=ceil(iw/2)*2:ceil(ih/2)*2" -pix_fmt yuv420p out.mp4
+ffmpeg -r 25 -i "frames/%05d.png" -c:v libx264 -vf "pad=ceil(iw/2)*2:ceil(ih/2)*2" -pix_fmt yuv420p video.mp4
 # convert video to gif, make sure to use correct scale
-ffmpeg -i out.mp4 -vf "fps=25,scale=1080:-1:flags=lanczos,split[s0][s1];[s0]palettegen[p];[s1][p]paletteuse" -loop 0 out.gif
+ffmpeg -i video.mp4 -vf "fps=25,scale=1080:-1:flags=lanczos,split[s0][s1];[s0]palettegen[p];[s1][p]paletteuse" -loop 0 out.gif
 ```
+
+Button `Make animation from frames` calls first command with correct `fps`.
 
 ## Build
 Download cargo from [official website](https://doc.rust-lang.org/cargo/getting-started/installation.html), clone this repo and call `cd rviewer` and `cargo build --release`. All files in `target` repository can be deleted after build, except for `rviewer.exe`. If you use Linux, you may be interested in reading [requirements](https://github.com/linebender/druid#linux) for graphics library.
