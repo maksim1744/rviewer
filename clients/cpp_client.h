@@ -537,6 +537,9 @@ struct Text {
     void draw() {
         drawn_ = true;
         _cout << "text";
+        if (text_) {
+            text_ = (std::string)"\"" + *text_ + "\"";
+        }
         print_option("m", text_);
         print_option("c", center_);
         print_option("s", font_);

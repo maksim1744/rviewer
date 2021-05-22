@@ -67,7 +67,7 @@ Each object can be one of those:
   + `a=xy` &mdash; alignment, consists of two chars, each is `B`, `C` or `E`, stands for `begin`, `center` or `end`, default is `a=CC`
   + `s=15` &mdash; font, double
   + `col=(255,255,0)` &mdash; color, 3 or 4 integers from 0 to 255 (last one is alpha channel)
-  + `m=some_text` &mdash; text, spaces are not allowed, `;` will be replaced with new line symbol
+  + `m=some_text` &mdash; text, `;` will be replaced with new line symbol; if you want spaces, use quotes: `m="a b c"`
 
 + `msg` &mdash; message, it is not drawn as everything else, but printed in the upper left corner. Everything after `msg ` will be printed
 

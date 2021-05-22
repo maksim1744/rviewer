@@ -33,14 +33,35 @@ impl MText {
             color: Color::rgb8(0 as u8, 0 as u8, 0 as u8),
             tags: Vec::new(),
         };
+        let mut s = s.to_string();
         let error_message = format!("Can't parse text from string [{}]", s);
+        for i in 0..s.len() {
+            if &s[i..i+2] == "m=" {
+                let mut j: usize;
+                if s.chars().nth(i + 2).expect(&error_message) == '"' {
+                    j = i + 3;
+                    while s.chars().nth(j).expect(&error_message) != '"' {
+                        text.text.push(s.chars().nth(j).expect(&error_message));
+                        j += 1;
+                    }
+                    j += 1
+                } else {
+                    j = i + 2;
+                    while j < s.len() && s.chars().nth(j).expect(&error_message) != ' ' {
+                        text.text.push(s.chars().nth(j).expect(&error_message));
+                        j += 1;
+                    }
+                }
+                text.text = text.text.replace(";", "\n");
+                s = [s[..i-1].to_string(), s[j..].to_string()].concat();
+                break;
+            }
+        }
         for token in s.split_whitespace() {
             if token.starts_with("c=") {
                 let mut iter = token[3..token.len() - 1].split(",");
                 text.center.x = iter.next().expect(&error_message).parse().expect(&error_message);
                 text.center.y = iter.next().expect(&error_message).parse().expect(&error_message);
-            } else if token.starts_with("m=") {
-                text.text = token[2..].trim().replace(";", "\n");
             } else if token.starts_with("s=") {
                 text.font = token[2..].trim().parse().expect(&error_message);
             } else if token.starts_with("a=") {
