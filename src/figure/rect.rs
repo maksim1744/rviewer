@@ -16,6 +16,7 @@ pub struct MRect {
     alignment: (char, char),
     color: Color,
     tags: Vec<String>,
+    keep: bool,
 }
 
 impl MRect {
@@ -28,6 +29,7 @@ impl MRect {
             alignment: ('C', 'C'),
             color: Color::rgb8(0 as u8, 0 as u8, 0 as u8),
             tags: Vec::new(),
+            keep: false,
         };
         let error_message = format!("Can't parse rect from string [{}]", s);
         for token in s.split_whitespace() {
@@ -59,6 +61,8 @@ impl MRect {
                 rect.color = Color::rgba8(r, g, b, a);
             } else if token.starts_with("t=") {
                 rect.tags.push(String::from(token[2..].trim()));
+            } else if token == "keep" {
+                rect.keep = true;
             }
         }
         rect
@@ -120,5 +124,9 @@ impl Figure for MRect {
 
     fn get_tags(&self) -> std::slice::Iter<'_, std::string::String> {
         self.tags.iter()
+    }
+
+    fn is_keep(&self) -> bool {
+        self.keep
     }
 }

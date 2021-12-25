@@ -15,6 +15,7 @@ pub struct MLine {
     width: f64,
     color: Color,
     tags: Vec<String>,
+    keep: bool,
 }
 
 impl MLine {
@@ -25,6 +26,7 @@ impl MLine {
             width: draw_properties.width,
             color: Color::rgb8(0 as u8, 0 as u8, 0 as u8),
             tags: Vec::new(),
+            keep: false,
         };
         let error_message = format!("Can't parse line from string [{}]", s);
         for token in s.split_whitespace() {
@@ -50,6 +52,8 @@ impl MLine {
                 line.color = Color::rgba8(r, g, b, a);
             } else if token.starts_with("t=") {
                 line.tags.push(String::from(token[2..].trim()));
+            } else if token == "keep" {
+                line.keep = true;
             }
         }
         line
@@ -77,5 +81,9 @@ impl Figure for MLine {
 
     fn get_tags(&self) -> std::slice::Iter<'_, std::string::String> {
         self.tags.iter()
+    }
+
+    fn is_keep(&self) -> bool {
+        self.keep
     }
 }

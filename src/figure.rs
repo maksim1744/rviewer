@@ -43,6 +43,8 @@ pub trait Figure {
         let (r, g, b, _a) = color.as_rgba8();
         format!("rgb({}, {}, {})", r, g, b)
     }
+
+    fn is_keep(&self) -> bool;
 }
 
 pub fn from_string(s: &str, draw_properties: &mut DrawProperties) -> Option<Box<dyn Figure + Send>> {

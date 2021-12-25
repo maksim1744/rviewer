@@ -167,6 +167,7 @@ struct Rect {
     optional<Color> color_;
     optional<pair<Alignment, Alignment>> alignment_;
     vector<string> tags_;
+    bool keep_ = false;
     bool drawn_ = false;
 
     Rect() {}
@@ -211,6 +212,10 @@ struct Rect {
         tags_.push_back(s);
         return *this;
     }
+    Rect &keep() {
+        keep_ = true;
+        return *this;
+    }
 
     void draw() {
         drawn_ = true;
@@ -221,6 +226,8 @@ struct Rect {
         print_option("f", fill_);
         print_option("col", color_);
         print_option("a", alignment_);
+        if (keep_)
+            _cout << " keep";
         for (const string &tag : tags_)
             _cout << " t=" << tag;
         _cout << '\n';
@@ -240,6 +247,7 @@ struct Circle {
     optional<bool> fill_;
     optional<Color> color_;
     vector<string> tags_;
+    bool keep_ = false;
     bool drawn_ = false;
 
     Circle() {}
@@ -274,6 +282,10 @@ struct Circle {
         tags_.push_back(s);
         return *this;
     }
+    Circle &keep() {
+        keep_ = true;
+        return *this;
+    }
 
     void draw() {
         drawn_ = true;
@@ -283,6 +295,8 @@ struct Circle {
         print_option("w", width_);
         print_option("f", fill_);
         print_option("col", color_);
+        if (keep_)
+            _cout << " keep";
         for (const string &tag : tags_)
             _cout << " t=" << tag;
         _cout << '\n';
@@ -301,6 +315,7 @@ struct Line {
     optional<double> width_;
     optional<Color> color_;
     vector<string> tags_;
+    bool keep_ = false;
     bool drawn_ = false;
 
     Line() {}
@@ -331,6 +346,10 @@ struct Line {
         tags_.push_back(s);
         return *this;
     }
+    Line &keep() {
+        keep_ = true;
+        return *this;
+    }
 
     void draw() {
         drawn_ = true;
@@ -339,6 +358,8 @@ struct Line {
         print_option("f", finish_);
         print_option("w", width_);
         print_option("col", color_);
+        if (keep_)
+            _cout << " keep";
         for (const string &tag : tags_)
             _cout << " t=" << tag;
         _cout << '\n';
@@ -360,6 +381,7 @@ struct Grid {
     optional<Color> color_;
     optional<pair<Alignment, Alignment>> alignment_;
     vector<string> tags_;
+    bool keep_ = false;
     bool drawn_ = false;
 
     Grid() {}
@@ -409,6 +431,10 @@ struct Grid {
         tags_.push_back(s);
         return *this;
     }
+    Grid &keep() {
+        keep_ = true;
+        return *this;
+    }
 
     void draw() {
         drawn_ = true;
@@ -420,6 +446,8 @@ struct Grid {
         print_option("f", fill_);
         print_option("col", color_);
         print_option("a", alignment_);
+        if (keep_)
+            _cout << " keep";
         for (const string &tag : tags_)
             _cout << " t=" << tag;
         _cout << '\n';
@@ -439,6 +467,7 @@ struct Poly {
     optional<Color> color_;
     optional<pair<Alignment, Alignment>> alignment_;
     vector<string> tags_;
+    bool keep_ = false;
     bool drawn_ = false;
 
     Poly() {}
@@ -478,6 +507,10 @@ struct Poly {
         tags_.push_back(s);
         return *this;
     }
+    Poly &keep() {
+        keep_ = true;
+        return *this;
+    }
 
     void draw() {
         drawn_ = true;
@@ -488,6 +521,8 @@ struct Poly {
         print_option("f", fill_);
         print_option("col", color_);
         print_option("a", alignment_);
+        if (keep_)
+            _cout << " keep";
         for (const string &tag : tags_)
             _cout << " t=" << tag;
         _cout << '\n';
@@ -507,6 +542,7 @@ struct Text {
     optional<Color> color_;
     optional<pair<Alignment, Alignment>> alignment_;
     vector<string> tags_;
+    bool keep_ = false;
     bool drawn_ = false;
 
     Text() {}
@@ -547,6 +583,10 @@ struct Text {
         tags_.push_back(s);
         return *this;
     }
+    Text &keep() {
+        keep_ = true;
+        return *this;
+    }
 
     void draw() {
         drawn_ = true;
@@ -559,6 +599,8 @@ struct Text {
         print_option("s", font_);
         print_option("col", color_);
         print_option("a", alignment_);
+        if (keep_)
+            _cout << " keep";
         for (const string &tag : tags_)
             _cout << " t=" << tag;
         _cout << '\n';

@@ -21,6 +21,7 @@ pub struct MText {
     color: Color,
     alignment: (char, char),
     tags: Vec<String>,
+    keep: bool,
 }
 
 impl MText {
@@ -32,6 +33,7 @@ impl MText {
             alignment: ('C', 'C'),
             color: Color::rgb8(0 as u8, 0 as u8, 0 as u8),
             tags: Vec::new(),
+            keep: false,
         };
         let mut s = s.to_string();
         let error_message = format!("Can't parse text from string [{}]", s);
@@ -78,6 +80,8 @@ impl MText {
                 text.color = Color::rgba8(r, g, b, a);
             } else if token.starts_with("t=") {
                 text.tags.push(String::from(token[2..].trim()));
+            } else if token == "keep" {
+                text.keep = true;
             }
         }
         text
@@ -138,5 +142,9 @@ impl Figure for MText {
 
     fn get_tags(&self) -> std::slice::Iter<'_, std::string::String> {
         self.tags.iter()
+    }
+
+    fn is_keep(&self) -> bool {
+        self.keep
     }
 }

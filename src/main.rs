@@ -573,7 +573,7 @@ fn main() {
                 }
             }
             disabled_tags.insert(dtag);
-        } else  {
+        } else {
             match figure::from_string(&line, &mut draw_properties.lock().unwrap()) {
                 Some(x) => {
                     for tag in x.get_tags() {
@@ -582,10 +582,9 @@ fn main() {
                             tags.lock().unwrap().push((tag.clone(), !disabled_tags.contains(tag)));
                         }
                     }
-                    if !frames.lock().unwrap().is_empty() {
-                        last_frame.push(objects.lock().unwrap().len());
-                    } else {
-                        last_frame.push(objects.lock().unwrap().len());
+                    last_frame.push(objects.lock().unwrap().len());
+                    if x.is_keep() {
+                        init_frames.push(objects.lock().unwrap().len());
                     }
                     objects.lock().unwrap().push(x);
                 },

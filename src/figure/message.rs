@@ -51,4 +51,8 @@ impl Figure for MMessage {
     fn get_tags(&self) -> std::slice::Iter<'_, std::string::String> {
         self.tags.iter()
     }
+
+    fn is_keep(&self) -> bool {
+        false
+    }
 }

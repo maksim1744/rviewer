@@ -17,6 +17,7 @@ pub struct MGrid {
     color: Color,
     alignment: (char, char),
     tags: Vec<String>,
+    keep: bool,
 }
 
 impl MGrid {
@@ -29,6 +30,7 @@ impl MGrid {
             alignment: ('C', 'C'),
             color: Color::rgb8(0 as u8, 0 as u8, 0 as u8),
             tags: Vec::new(),
+            keep: false,
         };
         let error_message = format!("Can't parse grid from string [{}]", s);
         for token in s.split_whitespace() {
@@ -60,6 +62,8 @@ impl MGrid {
                 grid.color = Color::rgba8(r, g, b, a);
             } else if token.starts_with("t=") {
                 grid.tags.push(String::from(token[2..].trim()));
+            } else if token == "keep" {
+                grid.keep = true;
             }
         }
         grid
@@ -134,5 +138,9 @@ impl Figure for MGrid {
 
     fn get_tags(&self) -> std::slice::Iter<'_, std::string::String> {
         self.tags.iter()
+    }
+
+    fn is_keep(&self) -> bool {
+        self.keep
     }
 }
