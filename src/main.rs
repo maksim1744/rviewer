@@ -409,8 +409,12 @@ impl Widget<AppData> for DrawingWidget {
             self.last_data_size = data_size;
         }
 
+        let flipy = *data.flipy.lock().unwrap();
+
         let transform = |mut p : Point| -> Point {
-            p.y = data_size.height - p.y;
+            if !flipy {
+                p.y = data_size.height - p.y;
+            }
             self.transform(p)
         };
 
@@ -472,6 +476,9 @@ fn main() {
     let svg_width_scale = Arc::new(Mutex::new(0.3));
     let svg_width_scale_ptr = svg_width_scale.clone();
 
+    let flipy = Arc::new(Mutex::new(false));
+    let flipy_ptr = flipy.clone();
+
     let handle = thread::spawn(move || {
         let app_data = AppData {
             objects: objects_ptr,
@@ -482,6 +489,7 @@ fn main() {
             tags: tags_ptr,
             draw_properties: draw_properties_ptr,
             svg_width_scale: svg_width_scale_ptr,
+            flipy: flipy_ptr,
             finished: finished_ptr,
         };
 
@@ -539,6 +547,8 @@ fn main() {
             size.lock().unwrap().height = iter.next().unwrap().parse().unwrap();
         } else if line.starts_with("svgwidth") {
             *svg_width_scale.lock().unwrap() = line[9..].trim().parse::<f64>().unwrap();
+        } else if line == "flipy" {
+            *flipy.lock().unwrap() = true;
         } else if line.starts_with("disable ") {
             let dtag = line[8..].trim().to_string();
             for (tag, b) in tags.lock().unwrap().iter_mut() {

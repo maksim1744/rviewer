@@ -94,6 +94,7 @@ struct Init {
     optional<double> speed_;
     optional<double> width_;
     optional<double> svg_width_;
+    bool flipy_ = false;
     bool drawn_ = false;
 
     Init() {}
@@ -123,6 +124,10 @@ struct Init {
         svg_width_ = d;
         return *this;
     }
+    Init &flipy() {
+        flipy_ = true;
+        return *this;
+    }
 
     void draw() {
         drawn_ = true;
@@ -136,6 +141,8 @@ struct Init {
             _cout << "font " << rviewer_to_string(*font_) << '\n';
         if (speed_)
             _cout << "speed " << rviewer_to_string(*speed_) << '\n';
+        if (flipy_)
+            _cout << "flipy" << '\n';
     }
 
     ~Init() {
