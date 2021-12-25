@@ -107,6 +107,7 @@ impl Figure for MRect {
         } else if self.alignment.1 == 'E' {
             center.y -= self.size.y / 2.;
         }
+        let center = (params.transform)(center);
         let mut rect = SvgRect::new()
             .set("x", center.x - self.size.x / 2.0)
             .set("y", params.size.height - (center.y + self.size.y / 2.0))

@@ -110,6 +110,7 @@ impl Figure for MGrid {
         } else if self.alignment.1 == 'E' {
             center.y -= self.size.y / 2.;
         }
+        let center = (params.transform)(center);
         for i in 0..self.dims.0 + 1 {
             let line = SvgLine::new()
                 .set("x1", center.x - self.size.x / 2. + self.size.x / self.dims.0 as f64 * i as f64)

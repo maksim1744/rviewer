@@ -79,11 +79,12 @@ impl Figure for MCircle {
     }
 
     fn draw_on_image(&self, img: Document, params: &SvgParams) -> Document {
+        let center = (params.transform)(self.center);
         let color = self.color_to_string(&self.color);
         let mut circ = SvgCircle::new()
-            .set("cx", self.center.x)
-            .set("cy", params.size.height - self.center.y)
-            .set("r" , self.radius  )
+            .set("cx", center.x)
+            .set("cy", params.size.height - center.y)
+            .set("r" , self.radius)
             .set("stroke-width" , self.width * params.width_scale)
             .set("opacity", self.color.as_rgba().3 as f64);
         if self.fill {

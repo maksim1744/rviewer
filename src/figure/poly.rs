@@ -76,7 +76,8 @@ impl Figure for MPoly {
 
     fn draw_on_image(&self, img: Document, params: &SvgParams) -> Document {
         let color = self.color_to_string(&self.color);
-        let points = self.points.iter().map(|p| format!("{},{}", p.x, params.size.height - p.y)).collect::<Vec<_>>().join(" ");
+        let points = self.points.iter().map(|&x| (params.transform)(x));
+        let points = points.map(|p| format!("{},{}", p.x, params.size.height - p.y)).collect::<Vec<_>>().join(" ");
         if self.fill {
             let poly = SvgPolygon::new()
                 .set("points", points)

@@ -68,11 +68,13 @@ impl Figure for MLine {
     }
 
     fn draw_on_image(&self, img: Document, params: &SvgParams) -> Document {
+        let start = (params.transform)(self.start);
+        let finish = (params.transform)(self.finish);
         let line = SvgLine::new()
-            .set("x1", self.start.x)
-            .set("y1", params.size.height - self.start.y)
-            .set("x2", self.finish.x)
-            .set("y2", params.size.height - self.finish.y)
+            .set("x1", start.x)
+            .set("y1", params.size.height - start.y)
+            .set("x2", finish.x)
+            .set("y2", params.size.height - finish.y)
             .set("stroke-width", self.width * params.width_scale)
             .set("stroke", self.color_to_string(&self.color))
             .set("opacity", self.color.as_rgba().3 as f64);

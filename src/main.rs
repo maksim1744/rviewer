@@ -86,9 +86,21 @@ impl DrawingWidget {
             .set("fill", "rgb(41, 41, 41)");
         img = img.add(rect);
 
+        let flipy = *data.flipy.lock().unwrap();
+        let shift = data.shift.lock().unwrap().clone();
+        let transform = |mut p : Point| -> Point {
+            p.x += shift.width;
+            p.y += shift.height;
+            if flipy {
+                p.y = size.height - p.y;
+            }
+            p
+        };
+
         let params = SvgParams {
             size: size.clone(),
             width_scale: *data.svg_width_scale.lock().unwrap(),
+            transform: &transform,
         };
 
         for ind in frame.iter() {

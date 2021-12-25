@@ -122,7 +122,8 @@ impl Figure for MText {
     }
 
     fn draw_on_image(&self, img: Document, params: &SvgParams) -> Document {
-        let mut y = params.size.height - self.center.y + self.font * 0.4;
+        let center = (params.transform)(self.center);
+        let mut y = params.size.height - center.y + self.font * 0.4;
         if self.alignment.1 == 'B' {
             y -= self.font * K_VERTICAL_AL;
         } else if self.alignment.1 == 'E' {
@@ -130,7 +131,7 @@ impl Figure for MText {
         }
         let text = SvgText::new()
             .add(SvgText2::new(&self.text))
-            .set("x", self.center.x)
+            .set("x", center.x)
             .set("y", y)
             .set("fill", self.color_to_string(&self.color))
             .set("font-size", self.font)
