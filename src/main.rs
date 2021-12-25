@@ -331,6 +331,10 @@ impl Widget<AppData> for DrawingWidget {
                             self.running = false;
                             self.timer_id = TimerToken::INVALID;
                         } else {
+                            if data.frame + 1 == data.frames.lock().unwrap().len() {
+                                data.frame = 0;
+                                ctx.request_paint();
+                            }
                             self.running = true;
                             self.timer_id = ctx.request_timer(Duration::from_secs_f64(*data.fps_speed.lock().unwrap()));
                         }
