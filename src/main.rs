@@ -203,13 +203,20 @@ impl DrawingWidget {
 
             if settings.conversion_tool.as_ref().unwrap() == "rsvg-convert" {
                 pool.execute(move || {
-                    std::process::Command::new("rsvg-convert".to_string())
+                    let result = std::process::Command::new("rsvg-convert".to_string())
                             .arg(&svg_file)
                             .arg("-o")
                             .arg(&png_file)
                             .arg("-w")
                             .arg(frame_resolution.to_string())
-                            .output().unwrap();
+                            .output();
+                    match result {
+                        Err(e) => {
+                            eprintln!("Can't run rsvg-convert, {}", e);
+                            return;
+                        },
+                        _ => {}
+                    };
                     fs::remove_file(&svg_file).unwrap();
                     print!("\rSaved frame {}/{}", frame + 1, total_frames);
                     io::stdout().flush().unwrap();
@@ -255,14 +262,21 @@ impl DrawingWidget {
             match fs::remove_file("video.mp4".to_string()) {
                 _ => {}
             };
-            let mut p = Popen::create(&format!("ffmpeg -r {} -i frames/%05d.png -c:v libx264 -vf pad=ceil(iw/2)*2:ceil(ih/2)*2 -pix_fmt yuv420p video.mp4", 1. / fps)
+            let result = Popen::create(&format!("ffmpeg -r {} -i frames/%05d.png -c:v libx264 -vf pad=ceil(iw/2)*2:ceil(ih/2)*2 -pix_fmt yuv420p video.mp4", 1. / fps)
                 .split_whitespace().collect::<Vec<_>>(), PopenConfig {
                 stdin: Redirection::Pipe,
                 stdout: Redirection::Pipe,
                 ..Default::default()
-            }).unwrap();
-            p.wait().unwrap();
-            println!("Video created");
+            });
+            match result {
+                Ok(mut p) => {
+                    p.wait().unwrap();
+                    println!("Video created");
+                },
+                Err(e) => {
+                    eprintln!("Can't run ffmpeg, {}", e);
+                }
+            };
         });
     }
 }
