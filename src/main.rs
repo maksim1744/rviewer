@@ -145,6 +145,12 @@ impl DrawingWidget {
     }
 
     fn save_all_frames_as_svg(&self, data: &AppData) {
+        match fs::remove_dir_all("frames") {
+            Err(e) => {
+                eprintln!("Can't remove folder frames, {}", e);
+            },
+            _ => {}
+        };
         fs::create_dir_all("frames").unwrap();
 
         let total_frames = data.frames.lock().unwrap().len();
@@ -170,6 +176,12 @@ impl DrawingWidget {
     }
 
     fn save_all_frames_as_png(&self, data: &AppData) {
+        match fs::remove_dir_all("frames") {
+            Err(e) => {
+                eprintln!("Can't remove folder frames, {}", e);
+            },
+            _ => {}
+        };
         fs::create_dir_all("frames").unwrap();
 
         let total_frames = data.frames.lock().unwrap().len();
