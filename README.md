@@ -36,7 +36,7 @@ Each object can be one of those:
   + `col=(255,255,0)` &mdash; color, 3 or 4 integers from 0 to 255 (last one is alpha channel)
   + `f=0` &mdash; 1 or 0, fill or not
   + `w=1.5` &mdash; double, width of a border line. Works only with `f=0`
-  + `keep` &mdash; keep an object for all future frames
+  + `k` &mdash; keep an object for all future frames
 
 + `circle` &mdash; circle by center and radius
   + `c=(10,20)` &mdash; center, pair of doubles
@@ -44,14 +44,14 @@ Each object can be one of those:
   + `col=(255,255,0)` &mdash; color, 3 or 4 integers from 0 to 255 (last one is alpha channel)
   + `f=0` &mdash; 1 or 0, fill or not
   + `w=1.5` &mdash; double, width of a border line. Works only with `f=0`
-  + `keep` &mdash; keep an object for all future frames
+  + `k` &mdash; keep an object for all future frames
 
 + `line` &mdash; line segment by two endpoints
   + `s=(10,20)` &mdash; first point, pair of doubles
   + `f=(10,20)` &mdash; second point, pair of doubles
   + `col=(255,255,0)` &mdash; color, 3 or 4 integers from 0 to 255 (last one is alpha channel)
   + `w=1.5` &mdash; double, width
-  + `keep` &mdash; keep an object for all future frames
+  + `k` &mdash; keep an object for all future frames
 
 + `grid` &mdash; grid by position, size and number of cells
   + `c=(10,20)` &mdash; position, pair of doubles
@@ -60,14 +60,14 @@ Each object can be one of those:
   + `d=(5,8)` &mdash; number of columns and rows, pair of integers
   + `col=(255,255,0)` &mdash; color, 3 or 4 integers from 0 to 255 (last one is alpha channel)
   + `w=1.5` &mdash; double, width of a border line. Works only with `f=0`
-  + `keep` &mdash; keep an object for all future frames
+  + `k` &mdash; keep an object for all future frames
 
 + `poly` &mdash; polygon or polyline by vertices
   + `p=(10,20)` &mdash; one vertex, add as many as you need in the right order
   + `col=(255,255,0)` &mdash; color, 3 or 4 integers from 0 to 255 (last one is alpha channel)
   + `f=0` &mdash; 1 or 0, fill or not (first point will be connected with last if `f=1`)
   + `w=1.5` &mdash; double, width of a border line. Works only with `f=0`
-  + `keep` &mdash; keep an object for all future frames
+  + `k` &mdash; keep an object for all future frames
 
 + `text` &mdash; text
   + `c=(10,20)` &mdash; position, pair of doubles
@@ -75,7 +75,7 @@ Each object can be one of those:
   + `s=15` &mdash; font, double
   + `col=(255,255,0)` &mdash; color, 3 or 4 integers from 0 to 255 (last one is alpha channel)
   + `m=some_text` &mdash; text, `;` will be replaced with new line symbol; if you want spaces, use quotes: `m="a b c"`
-  + `keep` &mdash; keep an object for all future frames
+  + `k` &mdash; keep an object for all future frames
 
 + `msg` &mdash; message, it is not drawn as everything else, but printed in the upper left corner. Everything after `msg ` will be printed
 

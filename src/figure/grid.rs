@@ -62,7 +62,7 @@ impl MGrid {
                 grid.color = Color::rgba8(r, g, b, a);
             } else if token.starts_with("t=") {
                 grid.tags.push(String::from(token[2..].trim()));
-            } else if token == "keep" {
+            } else if token == "k" {
                 grid.keep = true;
             }
         }

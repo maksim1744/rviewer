@@ -227,7 +227,7 @@ struct Rect {
         print_option("col", color_);
         print_option("a", alignment_);
         if (keep_)
-            _cout << " keep";
+            _cout << " k";
         for (const string &tag : tags_)
             _cout << " t=" << tag;
         _cout << '\n';
@@ -296,7 +296,7 @@ struct Circle {
         print_option("f", fill_);
         print_option("col", color_);
         if (keep_)
-            _cout << " keep";
+            _cout << " k";
         for (const string &tag : tags_)
             _cout << " t=" << tag;
         _cout << '\n';
@@ -359,7 +359,7 @@ struct Line {
         print_option("w", width_);
         print_option("col", color_);
         if (keep_)
-            _cout << " keep";
+            _cout << " k";
         for (const string &tag : tags_)
             _cout << " t=" << tag;
         _cout << '\n';
@@ -447,7 +447,7 @@ struct Grid {
         print_option("col", color_);
         print_option("a", alignment_);
         if (keep_)
-            _cout << " keep";
+            _cout << " k";
         for (const string &tag : tags_)
             _cout << " t=" << tag;
         _cout << '\n';
@@ -522,7 +522,7 @@ struct Poly {
         print_option("col", color_);
         print_option("a", alignment_);
         if (keep_)
-            _cout << " keep";
+            _cout << " k";
         for (const string &tag : tags_)
             _cout << " t=" << tag;
         _cout << '\n';
@@ -600,7 +600,7 @@ struct Text {
         print_option("col", color_);
         print_option("a", alignment_);
         if (keep_)
-            _cout << " keep";
+            _cout << " k";
         for (const string &tag : tags_)
             _cout << " t=" << tag;
         _cout << '\n';

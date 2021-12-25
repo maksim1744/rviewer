@@ -55,7 +55,7 @@ impl MPoly {
                 poly.color = Color::rgba8(r, g, b, a);
             } else if token.starts_with("t=") {
                 poly.tags.push(String::from(token[2..].trim()));
-            } else if token == "keep" {
+            } else if token == "k" {
                 poly.keep = true;
             }
         }
