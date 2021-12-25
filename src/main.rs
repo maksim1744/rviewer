@@ -410,8 +410,11 @@ impl Widget<AppData> for DrawingWidget {
         }
 
         let flipy = *data.flipy.lock().unwrap();
+        let shift = data.shift.lock().unwrap().clone();
 
         let transform = |mut p : Point| -> Point {
+            p.x += shift.width;
+            p.y += shift.height;
             if !flipy {
                 p.y = data_size.height - p.y;
             }
@@ -479,6 +482,9 @@ fn main() {
     let flipy = Arc::new(Mutex::new(false));
     let flipy_ptr = flipy.clone();
 
+    let shift = Arc::new(Mutex::new(Size::new(0.0, 0.0)));
+    let shift_ptr = shift.clone();
+
     let handle = thread::spawn(move || {
         let app_data = AppData {
             objects: objects_ptr,
@@ -490,6 +496,7 @@ fn main() {
             draw_properties: draw_properties_ptr,
             svg_width_scale: svg_width_scale_ptr,
             flipy: flipy_ptr,
+            shift: shift_ptr,
             finished: finished_ptr,
         };
 
@@ -545,6 +552,11 @@ fn main() {
             let mut iter = line.trim()[6..line.len() - 1].split(",");
             size.lock().unwrap().width = iter.next().unwrap().parse().unwrap();
             size.lock().unwrap().height = iter.next().unwrap().parse().unwrap();
+        } else if line.starts_with("shift") {
+            let line = line.trim();
+            let mut iter = line.trim()[7..line.len() - 1].split(",");
+            shift.lock().unwrap().width = iter.next().unwrap().parse().unwrap();
+            shift.lock().unwrap().height = iter.next().unwrap().parse().unwrap();
         } else if line.starts_with("svgwidth") {
             *svg_width_scale.lock().unwrap() = line[9..].trim().parse::<f64>().unwrap();
         } else if line == "flipy" {

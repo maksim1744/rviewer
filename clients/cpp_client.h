@@ -90,6 +90,7 @@ void DisableTag(const string &s) {
 
 struct Init {
     optional<pair<double, double>> size_;
+    optional<pair<double, double>> shift_;
     optional<double> font_;
     optional<double> speed_;
     optional<double> width_;
@@ -128,6 +129,10 @@ struct Init {
         flipy_ = true;
         return *this;
     }
+    Init &shift(const pair<double, double> &s) {
+        shift_ = s;
+        return *this;
+    }
 
     void draw() {
         drawn_ = true;
@@ -143,6 +148,8 @@ struct Init {
             _cout << "speed " << rviewer_to_string(*speed_) << '\n';
         if (flipy_)
             _cout << "flipy" << '\n';
+        if (shift_)
+            _cout << "shift " << rviewer_to_string(*shift_) << '\n';
     }
 
     ~Init() {

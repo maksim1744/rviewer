@@ -22,6 +22,7 @@ pub struct AppData {
     pub draw_properties: Arc<Mutex<DrawProperties>>,
     pub svg_width_scale: Arc<Mutex<f64>>,
     pub flipy: Arc<Mutex<bool>>,
+    pub shift: Arc<Mutex<Size>>,
 
     pub finished: Arc<Mutex<bool>>,
 }
