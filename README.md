@@ -23,6 +23,8 @@ File consists of multiple lines, each line corresponds to an object to be drawn.
 + `svgwidth w` &mdash; factor to scale line width when converting to `svg` (default 0.3)
 + `font f` &mdash; default font size
 + `disable some_tag` &mdash; tag will be disable by default
++ `shift (w,h)` &mdash; shift to add to all points
++ `flipy` &mdash; reverse direction of y axis
 
 Objects look like this: `circle c=(10,20) r=15 col=(255,255,0) f=1`. Not all parameters are required, default will be used if not specified. Spaces are important (as well as their absence in `col`, for example)
 
@@ -34,6 +36,7 @@ Each object can be one of those:
   + `col=(255,255,0)` &mdash; color, 3 or 4 integers from 0 to 255 (last one is alpha channel)
   + `f=0` &mdash; 1 or 0, fill or not
   + `w=1.5` &mdash; double, width of a border line. Works only with `f=0`
+  + `keep` &mdash; keep an object for all future frames
 
 + `circle` &mdash; circle by center and radius
   + `c=(10,20)` &mdash; center, pair of doubles
@@ -41,12 +44,14 @@ Each object can be one of those:
   + `col=(255,255,0)` &mdash; color, 3 or 4 integers from 0 to 255 (last one is alpha channel)
   + `f=0` &mdash; 1 or 0, fill or not
   + `w=1.5` &mdash; double, width of a border line. Works only with `f=0`
+  + `keep` &mdash; keep an object for all future frames
 
 + `line` &mdash; line segment by two endpoints
   + `s=(10,20)` &mdash; first point, pair of doubles
   + `f=(10,20)` &mdash; second point, pair of doubles
   + `col=(255,255,0)` &mdash; color, 3 or 4 integers from 0 to 255 (last one is alpha channel)
   + `w=1.5` &mdash; double, width
+  + `keep` &mdash; keep an object for all future frames
 
 + `grid` &mdash; grid by position, size and number of cells
   + `c=(10,20)` &mdash; position, pair of doubles
@@ -55,12 +60,14 @@ Each object can be one of those:
   + `d=(5,8)` &mdash; number of columns and rows, pair of integers
   + `col=(255,255,0)` &mdash; color, 3 or 4 integers from 0 to 255 (last one is alpha channel)
   + `w=1.5` &mdash; double, width of a border line. Works only with `f=0`
+  + `keep` &mdash; keep an object for all future frames
 
 + `poly` &mdash; polygon or polyline by vertices
   + `p=(10,20)` &mdash; one vertex, add as many as you need in the right order
   + `col=(255,255,0)` &mdash; color, 3 or 4 integers from 0 to 255 (last one is alpha channel)
   + `f=0` &mdash; 1 or 0, fill or not (first point will be connected with last if `f=1`)
   + `w=1.5` &mdash; double, width of a border line. Works only with `f=0`
+  + `keep` &mdash; keep an object for all future frames
 
 + `text` &mdash; text
   + `c=(10,20)` &mdash; position, pair of doubles
@@ -68,6 +75,7 @@ Each object can be one of those:
   + `s=15` &mdash; font, double
   + `col=(255,255,0)` &mdash; color, 3 or 4 integers from 0 to 255 (last one is alpha channel)
   + `m=some_text` &mdash; text, `;` will be replaced with new line symbol; if you want spaces, use quotes: `m="a b c"`
+  + `keep` &mdash; keep an object for all future frames
 
 + `msg` &mdash; message, it is not drawn as everything else, but printed in the upper left corner. Everything after `msg ` will be printed
 
