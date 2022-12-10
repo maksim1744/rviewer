@@ -81,6 +81,15 @@ Each object can be one of those:
 
 Every object except for `msg` has one more option `t=some_tag`. This adds a tag to an object. All tags will be shown in the right part of a screen and you can disable visibility of objects with certain tag.
 
+### In-betweens
+There is also an option to specify only keyframes and let `rviewer` fill in-betweens. To do that, use `in_betweens 10` with desired number of frames before first `tick`. Note that this will actually make `9` in-betweens, so the total number of frames will be 10x larger than the number of ticks.
+
+For `rivewer` to understand that it is the same object in two frames that needs to be moved, each object has an optional integer parameter `id=123` &mdash; make sure that they are different for different objects.
+
+Default movement is uniform across all frames. If you want a different function, first specify a function with `setfunc your_func_name 0.25 0.5 0.75` &mdash; which contains an array of intermediate positions. For example, a function above is equivalent to default function with `in_betweens 4`. Then to use it, add `fu=your_func_name` to the resulting version of an object (i.e. the one that is in the second frame among two consecutive).
+
+Refer to [example_in_betweens](examples/example_in_betweens.cpp) for more details.
+
 ## Clients
 All available clients are available in folder [client](/clients).
 ### cpp
