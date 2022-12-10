@@ -8,7 +8,7 @@ use std::fs;
 use std::fs::File;
 use std::io::{self, BufRead, Write};
 
-use std::collections::HashSet;
+use std::collections::{HashMap, HashSet};
 
 use druid::widget::prelude::*;
 use druid::widget::{Align, CrossAxisAlignment, Flex, Label, MainAxisAlignment, SizedBox, Widget};
@@ -33,10 +33,14 @@ use settings::Settings;
 mod app_data;
 mod checklist;
 mod figure;
+mod in_between;
 mod islider;
 mod parse;
 mod poly;
+
 use checklist::Checklist;
+use figure::in_betweens;
+use in_between::InBetweenProperties;
 
 use app_data::*;
 use islider::ISlider;
@@ -555,13 +559,53 @@ fn main() {
     let mut last_frame = Vec::new();
     let mut is_initial_tick = true;
 
+    let mut in_between_properties = InBetweenProperties::new();
+
+    let add_frame = |frames: &Arc<Mutex<Vec<Vec<usize>>>>, frame: &Vec<usize>, in_between_properties: &InBetweenProperties| {
+        if in_between_properties.frames == 1 || frames.lock().unwrap().is_empty() {
+            frames.lock().unwrap().push(frame.clone());
+        } else {
+            let mut frames = frames.lock().unwrap();
+            let mut prev = HashMap::new();
+            let mut in_between_frames = vec![Vec::new(); in_between_properties.frames - 1];
+            for &item in frames.last().unwrap() {
+                if let Some(id) = objects.lock().unwrap()[item].common().id {
+                    prev.insert(id, item);
+                } else {
+                    for frame in in_between_frames.iter_mut() {
+                        frame.push(item);
+                    }
+                }
+            }
+            for &item in frame.iter() {
+                let mut objects = objects.lock().unwrap();
+                if let Some(id) = objects[item].common().id {
+                    if let Some(&i) = prev.get(&id) {
+                        let v = in_betweens(&*objects[i], &*objects[item], &in_between_properties);
+                        if v.is_empty() {
+                            continue;
+                        }
+                        assert_eq!(v.len(), in_between_properties.frames - 1);
+                        for (i, x) in v.into_iter().enumerate() {
+                            let len = objects.len();
+                            objects.push(x);
+                            in_between_frames[i].push(len);
+                        }
+                    }
+                }
+            }
+            frames.extend(in_between_frames);
+            frames.push(frame.clone());
+        }
+    };
+
     for line in iter.lines() {
         let line = line.unwrap();
         if line.starts_with("tick") {
             if is_initial_tick {
                 init_frames = last_frame.clone();
             } else {
-                frames.lock().unwrap().push(last_frame.clone());
+                add_frame(&frames, &last_frame, &in_between_properties);
             }
             last_frame = init_frames.clone();
             print!("\rreading tick {}", frames.lock().unwrap().len() + 1);
@@ -596,6 +640,17 @@ fn main() {
                 }
             }
             disabled_tags.insert(dtag);
+        } else if line.starts_with("in_betweens") {
+            in_between_properties.frames = line.split_whitespace().nth(1).unwrap().parse().unwrap();
+            in_between_properties.func = (1..in_between_properties.frames)
+                .map(|x| x as f64 / in_between_properties.frames as f64)
+                .collect();
+            in_between_properties.funcs.insert("line".to_string(), in_between_properties.func.clone());
+        } else if line.starts_with("setfunc") {
+            let mut iter = line.split_whitespace().skip(1);
+            let name = iter.next().unwrap().to_string();
+            let values = iter.map(|s| s.parse().unwrap()).collect();
+            in_between_properties.funcs.insert(name, values);
         } else {
             match figure::from_string(&line, &mut draw_properties.lock().unwrap()) {
                 Some(x) => {
@@ -615,7 +670,7 @@ fn main() {
             };
         }
     }
-    frames.lock().unwrap().push(last_frame.clone());
+    add_frame(&frames, &last_frame, &in_between_properties);
 
     *finished.lock().unwrap() = true;
 

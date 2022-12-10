@@ -2,6 +2,8 @@ use crate::app_data::DrawProperties;
 use crate::figure::{CommonParams, Figure};
 use crate::svg_params::SvgParams;
 
+use std::any::Any;
+
 use druid::widget::prelude::*;
 use druid::{Color, Point};
 
@@ -49,5 +51,9 @@ impl Figure for MMessage {
 
     fn common(&self) -> &CommonParams {
         &self.common
+    }
+
+    fn as_any(&self) -> &dyn Any {
+        self
     }
 }

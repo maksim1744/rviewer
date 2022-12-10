@@ -1,7 +1,10 @@
 use crate::app_data::DrawProperties;
 use crate::figure::{CommonParams, Figure};
+use crate::in_between::{interpolate, InBetweenProperties};
 use crate::parse::Params;
 use crate::svg_params::SvgParams;
+
+use std::any::Any;
 
 use druid::kurbo::Line;
 use druid::widget::prelude::*;
@@ -30,6 +33,26 @@ impl MGrid {
             alignment: params.get("a").unwrap_or(('C', 'C')),
             common: CommonParams::new(&params, draw_properties),
         }
+    }
+
+    pub fn in_betweens(a: &Self, b: &Self, in_between_properties: &InBetweenProperties) -> Vec<Self> {
+        let func = b
+            .common
+            .func
+            .as_ref()
+            .and_then(|x| in_between_properties.funcs.get(x))
+            .unwrap_or(&in_between_properties.func);
+        (0..in_between_properties.frames - 1)
+            .map(|i| func[i])
+            .map(|k| Self {
+                center: interpolate(&a.center, &b.center, k),
+                size: interpolate(&a.size, &b.size, k),
+                dims: interpolate(&a.dims, &b.dims, k),
+                width: interpolate(&a.width, &b.width, k),
+                alignment: a.alignment,
+                common: interpolate(&a.common, &b.common, k),
+            })
+            .collect()
     }
 }
 
@@ -120,5 +143,9 @@ impl Figure for MGrid {
 
     fn common(&self) -> &CommonParams {
         &self.common
+    }
+
+    fn as_any(&self) -> &dyn Any {
+        self
     }
 }

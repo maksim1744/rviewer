@@ -1,9 +1,11 @@
 use crate::app_data::DrawProperties;
+use crate::in_between::InBetweenProperties;
 use crate::svg_params::SvgParams;
 
 use druid::widget::prelude::*;
 use druid::Point;
 
+use std::any::Any;
 use std::collections::HashSet;
 
 use svg::Document;
@@ -27,10 +29,9 @@ pub use common::CommonParams;
 
 pub trait Figure {
     fn draw(&self, ctx: &mut PaintCtx, scale: f64, transform: &dyn Fn(Point) -> Point);
-
     fn draw_on_image(&self, img: Document, params: &SvgParams) -> Document;
-
     fn common(&self) -> &CommonParams;
+    fn as_any(&self) -> &dyn Any;
 
     fn tags(&self) -> &Vec<String> {
         &self.common().tags
@@ -68,4 +69,25 @@ pub fn from_string(s: &str, draw_properties: &mut DrawProperties) -> Option<Box<
     } else {
         None
     }
+}
+
+macro_rules! in_betweens_match {
+    ($a:ident, $b:ident, $in_between_properties:ident, $t:ty) => {
+        if let Some(a) = $a.as_any().downcast_ref::<$t>() {
+            return <$t>::in_betweens(&a, $b.as_any().downcast_ref::<$t>().unwrap(), $in_between_properties)
+                .into_iter()
+                .map(|x| Box::new(x) as Box<dyn Figure + Send>)
+                .collect();
+        }
+    };
+}
+
+pub fn in_betweens(a: &dyn Figure, b: &dyn Figure, in_between_properties: &InBetweenProperties) -> Vec<Box<dyn Figure + Send>> {
+    in_betweens_match!(a, b, in_between_properties, MRect);
+    in_betweens_match!(a, b, in_between_properties, MCircle);
+    in_betweens_match!(a, b, in_between_properties, MLine);
+    in_betweens_match!(a, b, in_between_properties, MGrid);
+    in_betweens_match!(a, b, in_between_properties, MPoly);
+    in_betweens_match!(a, b, in_between_properties, MText);
+    Vec::new()
 }

@@ -88,6 +88,13 @@ void DisableTag(const string &s) {
     _cout << "disable " << s << '\n';
 }
 
+void SetFunc(const string& s, const vector<double>& v) {
+    _cout << "setfunc " << s;
+    for (const auto& x : v)
+        _cout << ' ' << x;
+    _cout << '\n';
+}
+
 struct Init {
     optional<pair<double, double>> size_;
     optional<pair<double, double>> shift_;
@@ -95,6 +102,7 @@ struct Init {
     optional<double> speed_;
     optional<double> width_;
     optional<double> svg_width_;
+    optional<int> in_betweens_;
     bool flipy_ = false;
     bool drawn_ = false;
 
@@ -133,6 +141,10 @@ struct Init {
         shift_ = s;
         return *this;
     }
+    Init &in_betweens(int i) {
+        in_betweens_ = i;
+        return *this;
+    }
 
     void draw() {
         drawn_ = true;
@@ -150,6 +162,8 @@ struct Init {
             _cout << "flipy" << '\n';
         if (shift_)
             _cout << "shift " << rviewer_to_string(*shift_) << '\n';
+        if (in_betweens_)
+            _cout << "in_betweens " << rviewer_to_string(*in_betweens_) << '\n';
     }
 
     ~Init() {
@@ -166,6 +180,8 @@ struct Rect {
     optional<bool> fill_;
     optional<Color> color_;
     optional<pair<Alignment, Alignment>> alignment_;
+    optional<int> id_;
+    optional<string> func_;
     vector<string> tags_;
     bool keep_ = false;
     bool drawn_ = false;
@@ -216,6 +232,14 @@ struct Rect {
         keep_ = true;
         return *this;
     }
+    Rect &id(int id) {
+        id_ = id;
+        return *this;
+    }
+    Rect &func(const string& f) {
+        func_ = f;
+        return *this;
+    }
 
     void draw() {
         drawn_ = true;
@@ -226,6 +250,8 @@ struct Rect {
         print_option("f", fill_);
         print_option("col", color_);
         print_option("a", alignment_);
+        print_option("id", id_);
+        print_option("fu", func_);
         if (keep_)
             _cout << " k";
         for (const string &tag : tags_)
@@ -246,6 +272,8 @@ struct Circle {
     optional<double> width_;
     optional<bool> fill_;
     optional<Color> color_;
+    optional<int> id_;
+    optional<string> func_;
     vector<string> tags_;
     bool keep_ = false;
     bool drawn_ = false;
@@ -286,6 +314,14 @@ struct Circle {
         keep_ = true;
         return *this;
     }
+    Circle &id(int id) {
+        id_ = id;
+        return *this;
+    }
+    Circle &func(const string& f) {
+        func_ = f;
+        return *this;
+    }
 
     void draw() {
         drawn_ = true;
@@ -295,6 +331,8 @@ struct Circle {
         print_option("w", width_);
         print_option("f", fill_);
         print_option("col", color_);
+        print_option("id", id_);
+        print_option("fu", func_);
         if (keep_)
             _cout << " k";
         for (const string &tag : tags_)
@@ -314,6 +352,8 @@ struct Line {
     optional<pair<double, double>> finish_;
     optional<double> width_;
     optional<Color> color_;
+    optional<int> id_;
+    optional<string> func_;
     vector<string> tags_;
     bool keep_ = false;
     bool drawn_ = false;
@@ -350,6 +390,14 @@ struct Line {
         keep_ = true;
         return *this;
     }
+    Line &id(int id) {
+        id_ = id;
+        return *this;
+    }
+    Line &func(const string& f) {
+        func_ = f;
+        return *this;
+    }
 
     void draw() {
         drawn_ = true;
@@ -358,6 +406,8 @@ struct Line {
         print_option("f", finish_);
         print_option("w", width_);
         print_option("col", color_);
+        print_option("id", id_);
+        print_option("fu", func_);
         if (keep_)
             _cout << " k";
         for (const string &tag : tags_)
@@ -380,6 +430,8 @@ struct Grid {
     optional<bool> fill_;
     optional<Color> color_;
     optional<pair<Alignment, Alignment>> alignment_;
+    optional<int> id_;
+    optional<string> func_;
     vector<string> tags_;
     bool keep_ = false;
     bool drawn_ = false;
@@ -435,6 +487,14 @@ struct Grid {
         keep_ = true;
         return *this;
     }
+    Grid &id(int id) {
+        id_ = id;
+        return *this;
+    }
+    Grid &func(const string& f) {
+        func_ = f;
+        return *this;
+    }
 
     void draw() {
         drawn_ = true;
@@ -446,6 +506,8 @@ struct Grid {
         print_option("f", fill_);
         print_option("col", color_);
         print_option("a", alignment_);
+        print_option("id", id_);
+        print_option("fu", func_);
         if (keep_)
             _cout << " k";
         for (const string &tag : tags_)
@@ -466,6 +528,8 @@ struct Poly {
     optional<bool> fill_;
     optional<Color> color_;
     optional<pair<Alignment, Alignment>> alignment_;
+    optional<int> id_;
+    optional<string> func_;
     vector<string> tags_;
     bool keep_ = false;
     bool drawn_ = false;
@@ -511,6 +575,14 @@ struct Poly {
         keep_ = true;
         return *this;
     }
+    Poly &id(int id) {
+        id_ = id;
+        return *this;
+    }
+    Poly &func(const string& f) {
+        func_ = f;
+        return *this;
+    }
 
     void draw() {
         drawn_ = true;
@@ -521,6 +593,8 @@ struct Poly {
         print_option("f", fill_);
         print_option("col", color_);
         print_option("a", alignment_);
+        print_option("id", id_);
+        print_option("fu", func_);
         if (keep_)
             _cout << " k";
         for (const string &tag : tags_)
@@ -541,6 +615,8 @@ struct Text {
     optional<double> font_;
     optional<Color> color_;
     optional<pair<Alignment, Alignment>> alignment_;
+    optional<int> id_;
+    optional<string> func_;
     vector<string> tags_;
     bool keep_ = false;
     bool drawn_ = false;
@@ -587,6 +663,14 @@ struct Text {
         keep_ = true;
         return *this;
     }
+    Text &id(int id) {
+        id_ = id;
+        return *this;
+    }
+    Text &func(const string& f) {
+        func_ = f;
+        return *this;
+    }
 
     void draw() {
         drawn_ = true;
@@ -599,6 +683,8 @@ struct Text {
         print_option("s", font_);
         print_option("col", color_);
         print_option("a", alignment_);
+        print_option("id", id_);
+        print_option("fu", func_);
         if (keep_)
             _cout << " k";
         for (const string &tag : tags_)

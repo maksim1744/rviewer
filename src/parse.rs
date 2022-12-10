@@ -55,6 +55,18 @@ impl Param for f64 {
     }
 }
 
+impl Param for i32 {
+    fn from(s: &[&str]) -> Option<Self> {
+        s[0].parse().ok()
+    }
+}
+
+impl Param for String {
+    fn from(s: &[&str]) -> Option<Self> {
+        Some(s[0].to_string())
+    }
+}
+
 impl Param for Vec<String> {
     fn from(s: &[&str]) -> Option<Self> {
         Some(s.iter().map(|s| s.to_string()).collect())
