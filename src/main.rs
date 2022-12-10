@@ -34,6 +34,7 @@ mod app_data;
 mod checklist;
 mod figure;
 mod islider;
+mod parse;
 mod poly;
 use checklist::Checklist;
 
@@ -598,14 +599,14 @@ fn main() {
         } else {
             match figure::from_string(&line, &mut draw_properties.lock().unwrap()) {
                 Some(x) => {
-                    for tag in x.get_tags() {
+                    for tag in x.tags().iter() {
                         if !tags_set.contains(tag) {
                             tags_set.insert(tag.clone());
                             tags.lock().unwrap().push((tag.clone(), !disabled_tags.contains(tag)));
                         }
                     }
                     last_frame.push(objects.lock().unwrap().len());
-                    if x.is_keep() {
+                    if x.keep() {
                         init_frames.push(objects.lock().unwrap().len());
                     }
                     objects.lock().unwrap().push(x);

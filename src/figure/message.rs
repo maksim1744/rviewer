@@ -1,5 +1,5 @@
 use crate::app_data::DrawProperties;
-use crate::figure::Figure;
+use crate::figure::{CommonParams, Figure};
 use crate::svg_params::SvgParams;
 
 use druid::widget::prelude::*;
@@ -12,7 +12,7 @@ use svg::Document;
 pub struct MMessage {
     message_ind: usize,
     text: String,
-    tags: Vec<String>,
+    common: CommonParams,
 }
 
 impl MMessage {
@@ -20,7 +20,7 @@ impl MMessage {
         let message = MMessage {
             message_ind: draw_properties.was_messages,
             text: String::from(&s[4..]),
-            tags: Vec::new(),
+            common: CommonParams::default(),
         };
         draw_properties.was_messages += 1;
         message
@@ -47,11 +47,7 @@ impl Figure for MMessage {
         img
     }
 
-    fn get_tags(&self) -> std::slice::Iter<'_, std::string::String> {
-        self.tags.iter()
-    }
-
-    fn is_keep(&self) -> bool {
-        false
+    fn common(&self) -> &CommonParams {
+        &self.common
     }
 }

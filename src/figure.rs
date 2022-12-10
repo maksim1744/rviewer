@@ -2,7 +2,7 @@ use crate::app_data::DrawProperties;
 use crate::svg_params::SvgParams;
 
 use druid::widget::prelude::*;
-use druid::{Color, Point};
+use druid::Point;
 
 use std::collections::HashSet;
 
@@ -22,29 +22,32 @@ pub mod text;
 pub use text::MText;
 pub mod message;
 pub use message::MMessage;
+pub mod common;
+pub use common::CommonParams;
 
 pub trait Figure {
     fn draw(&self, ctx: &mut PaintCtx, scale: f64, transform: &dyn Fn(Point) -> Point);
 
     fn draw_on_image(&self, img: Document, params: &SvgParams) -> Document;
 
-    fn get_tags(&self) -> std::slice::Iter<'_, std::string::String>;
+    fn common(&self) -> &CommonParams;
+
+    fn tags(&self) -> &Vec<String> {
+        &self.common().tags
+    }
+
+    fn keep(&self) -> bool {
+        self.common().keep
+    }
 
     fn need_to_draw(&self, tags: &HashSet<String>) -> bool {
-        let iter = self.get_tags();
-        if iter.size_hint().0 == 0 {
-            true
-        } else {
-            self.get_tags().any(|x| tags.contains(x))
-        }
+        self.tags().is_empty() || self.tags().iter().any(|x| tags.contains(x))
     }
 
-    fn color_to_string(&self, color: &Color) -> String {
-        let (r, g, b, _a) = color.as_rgba8();
+    fn color_to_string(&self) -> String {
+        let (r, g, b, _a) = self.common().color.as_rgba8();
         format!("rgb({}, {}, {})", r, g, b)
     }
-
-    fn is_keep(&self) -> bool;
 }
 
 pub fn from_string(s: &str, draw_properties: &mut DrawProperties) -> Option<Box<dyn Figure + Send>> {

@@ -1,9 +1,10 @@
 use crate::app_data::DrawProperties;
-use crate::figure::Figure;
+use crate::figure::{CommonParams, Figure};
+use crate::parse::Params;
 use crate::svg_params::SvgParams;
 
 use druid::widget::prelude::*;
-use druid::{Color, Point};
+use druid::Point;
 
 use druid::piet::{FontFamily, Text, TextLayout, TextLayoutBuilder};
 
@@ -18,73 +19,45 @@ pub struct MText {
     center: Point,
     text: String,
     font: f64,
-    color: Color,
     alignment: (char, char),
-    tags: Vec<String>,
-    keep: bool,
+    common: CommonParams,
 }
 
 impl MText {
     pub fn from_string(s: &str, draw_properties: &mut DrawProperties) -> Self {
-        let mut text = MText {
-            center: Point::new(0.0, 0.0),
-            text: String::new(),
-            font: draw_properties.font,
-            alignment: ('C', 'C'),
-            color: Color::rgb8(0 as u8, 0 as u8, 0 as u8),
-            tags: Vec::new(),
-            keep: false,
-        };
         let mut s = s.to_string();
         let error_message = format!("Can't parse text from string [{}]", s);
+        let mut text = String::new();
         for i in 0..s.len() {
             if &s[i..i + 2] == "m=" {
                 let mut j: usize;
                 if s.chars().nth(i + 2).expect(&error_message) == '"' {
                     j = i + 3;
                     while s.chars().nth(j).expect(&error_message) != '"' {
-                        text.text.push(s.chars().nth(j).expect(&error_message));
+                        text.push(s.chars().nth(j).expect(&error_message));
                         j += 1;
                     }
                     j += 1
                 } else {
                     j = i + 2;
                     while j < s.len() && s.chars().nth(j).expect(&error_message) != ' ' {
-                        text.text.push(s.chars().nth(j).expect(&error_message));
+                        text.push(s.chars().nth(j).expect(&error_message));
                         j += 1;
                     }
                 }
-                text.text = text.text.replace(";", "\n");
+                text = text.replace(";", "\n");
                 s = [s[..i - 1].to_string(), s[j..].to_string()].concat();
                 break;
             }
         }
-        for token in s.split_whitespace() {
-            if token.starts_with("c=") {
-                let mut iter = token[3..token.len() - 1].split(",");
-                text.center.x = iter.next().expect(&error_message).parse().expect(&error_message);
-                text.center.y = iter.next().expect(&error_message).parse().expect(&error_message);
-            } else if token.starts_with("s=") {
-                text.font = token[2..].trim().parse().expect(&error_message);
-            } else if token.starts_with("a=") {
-                text.alignment = (token.chars().nth(2).expect(&error_message), token.chars().nth(3).expect(&error_message));
-            } else if token.starts_with("col=") {
-                let mut iter = token[5..token.len() - 1].split(",");
-                let r = iter.next().expect(&error_message).parse().expect(&error_message);
-                let g = iter.next().expect(&error_message).parse().expect(&error_message);
-                let b = iter.next().expect(&error_message).parse().expect(&error_message);
-                let a = match iter.next() {
-                    Some(x) => x.parse().expect(&error_message),
-                    None => 255,
-                };
-                text.color = Color::rgba8(r, g, b, a);
-            } else if token.starts_with("t=") {
-                text.tags.push(String::from(token[2..].trim()));
-            } else if token == "k" {
-                text.keep = true;
-            }
+        let params = Params::from_str(&s);
+        Self {
+            center: params.get("c").unwrap_or(Point::new(0.0, 0.0)),
+            text,
+            font: params.get("s").unwrap_or(draw_properties.font),
+            alignment: params.get("a").unwrap_or(('C', 'C')),
+            common: CommonParams::new(&params, draw_properties),
         }
-        text
     }
 }
 
@@ -96,7 +69,7 @@ impl Figure for MText {
         let layout = text
             .new_text_layout(self.text.clone())
             .font(FontFamily::SYSTEM_UI, font)
-            .text_color(self.color.clone())
+            .text_color(self.common.color.clone())
             .build()
             .unwrap();
 
@@ -133,7 +106,7 @@ impl Figure for MText {
             .add(SvgText2::new(&self.text))
             .set("x", center.x)
             .set("y", y)
-            .set("fill", self.color_to_string(&self.color))
+            .set("fill", self.color_to_string())
             .set("font-size", self.font)
             .set(
                 "text-anchor",
@@ -145,16 +118,12 @@ impl Figure for MText {
                     "end"
                 },
             )
-            .set("opacity", self.color.as_rgba().3 as f64)
+            .set("opacity", self.common.color.as_rgba().3 as f64)
             .set("font-family", "system-ui");
         img.add(text)
     }
 
-    fn get_tags(&self) -> std::slice::Iter<'_, std::string::String> {
-        self.tags.iter()
-    }
-
-    fn is_keep(&self) -> bool {
-        self.keep
+    fn common(&self) -> &CommonParams {
+        &self.common
     }
 }

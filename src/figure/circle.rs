@@ -1,10 +1,11 @@
 use crate::app_data::DrawProperties;
-use crate::figure::Figure;
+use crate::figure::{CommonParams, Figure};
+use crate::parse::Params;
 use crate::svg_params::SvgParams;
 
 use druid::kurbo::Circle;
 use druid::widget::prelude::*;
-use druid::{Color, Point};
+use druid::Point;
 
 use svg::node::element::Circle as SvgCircle;
 use svg::Document;
@@ -14,54 +15,19 @@ pub struct MCircle {
     radius: f64,
     fill: bool,
     width: f64,
-    color: Color,
-    tags: Vec<String>,
-    keep: bool,
+    common: CommonParams,
 }
 
 impl MCircle {
     pub fn from_string(s: &str, draw_properties: &mut DrawProperties) -> Self {
-        let mut circle = MCircle {
-            center: Point::new(0.0, 0.0),
-            radius: 1.0,
-            fill: false,
-            width: draw_properties.width,
-            color: Color::rgb8(0 as u8, 0 as u8, 0 as u8),
-            tags: Vec::new(),
-            keep: false,
-        };
-        let error_message = format!("Can't parse circle from string [{}]", s);
-        for token in s.split_whitespace() {
-            if token.starts_with("c=") {
-                let mut iter = token[3..token.len() - 1].split(",");
-                circle.center.x = iter.next().expect(&error_message).parse().expect(&error_message);
-                circle.center.y = iter.next().expect(&error_message).parse().expect(&error_message);
-            } else if token.starts_with("r=") {
-                let mut iter = token[2..].split(",");
-                circle.radius = iter.next().expect(&error_message).parse().expect(&error_message);
-            } else if token.starts_with("w=") {
-                circle.width = token[2..].trim().parse().expect(&error_message);
-            } else if token.starts_with("f=") {
-                if token == "f=1" {
-                    circle.fill = true;
-                }
-            } else if token.starts_with("col=") {
-                let mut iter = token[5..token.len() - 1].split(",");
-                let r = iter.next().expect(&error_message).parse().expect(&error_message);
-                let g = iter.next().expect(&error_message).parse().expect(&error_message);
-                let b = iter.next().expect(&error_message).parse().expect(&error_message);
-                let a = match iter.next() {
-                    Some(x) => x.parse().expect(&error_message),
-                    None => 255,
-                };
-                circle.color = Color::rgba8(r, g, b, a);
-            } else if token.starts_with("t=") {
-                circle.tags.push(String::from(token[2..].trim()));
-            } else if token == "k" {
-                circle.keep = true;
-            }
+        let params = Params::from_str(s);
+        Self {
+            center: params.get("c").unwrap_or(Point::new(0.0, 0.0)),
+            radius: params.get("r").unwrap_or(1.0),
+            fill: params.get("f").unwrap_or(false),
+            width: params.get("w").unwrap_or(draw_properties.width),
+            common: CommonParams::new(&params, draw_properties),
         }
-        circle
     }
 }
 
@@ -72,21 +38,21 @@ impl Figure for MCircle {
         r *= scale;
         let circle = Circle::new(center, r);
         if self.fill {
-            ctx.fill(circle, &self.color);
+            ctx.fill(circle, &self.common.color);
         } else {
-            ctx.stroke(circle, &self.color, self.width);
+            ctx.stroke(circle, &self.common.color, self.width);
         }
     }
 
     fn draw_on_image(&self, img: Document, params: &SvgParams) -> Document {
         let center = (params.transform)(self.center);
-        let color = self.color_to_string(&self.color);
+        let color = self.color_to_string();
         let mut circ = SvgCircle::new()
             .set("cx", center.x)
             .set("cy", params.size.height - center.y)
             .set("r", self.radius)
             .set("stroke-width", self.width * params.width_scale)
-            .set("opacity", self.color.as_rgba().3 as f64);
+            .set("opacity", self.common.color.as_rgba().3 as f64);
         if self.fill {
             circ = circ.set("fill", color);
         } else {
@@ -95,11 +61,7 @@ impl Figure for MCircle {
         img.add(circ)
     }
 
-    fn get_tags(&self) -> std::slice::Iter<'_, std::string::String> {
-        self.tags.iter()
-    }
-
-    fn is_keep(&self) -> bool {
-        self.keep
+    fn common(&self) -> &CommonParams {
+        &self.common
     }
 }
