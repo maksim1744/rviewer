@@ -2,7 +2,7 @@ use crate::app_data::DrawProperties;
 use crate::svg_params::SvgParams;
 
 use druid::widget::prelude::*;
-use druid::{Point, Color};
+use druid::{Color, Point};
 
 use std::collections::HashSet;
 
@@ -66,4 +66,3 @@ pub fn from_string(s: &str, draw_properties: &mut DrawProperties) -> Option<Box<
         None
     }
 }
-

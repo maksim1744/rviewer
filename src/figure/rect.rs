@@ -1,12 +1,12 @@
-use crate::figure::Figure;
 use crate::app_data::DrawProperties;
+use crate::figure::Figure;
 use crate::svg_params::SvgParams;
 
 use druid::widget::prelude::*;
 use druid::{Color, Point, Rect};
 
-use svg::Document;
 use svg::node::element::Rectangle as SvgRect;
+use svg::Document;
 
 pub struct MRect {
     center: Point,

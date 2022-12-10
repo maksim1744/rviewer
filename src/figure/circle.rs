@@ -1,13 +1,13 @@
-use crate::figure::Figure;
 use crate::app_data::DrawProperties;
+use crate::figure::Figure;
 use crate::svg_params::SvgParams;
 
+use druid::kurbo::Circle;
 use druid::widget::prelude::*;
 use druid::{Color, Point};
-use druid::kurbo::Circle;
 
-use svg::Document;
 use svg::node::element::Circle as SvgCircle;
+use svg::Document;
 
 pub struct MCircle {
     center: Point,
@@ -84,8 +84,8 @@ impl Figure for MCircle {
         let mut circ = SvgCircle::new()
             .set("cx", center.x)
             .set("cy", params.size.height - center.y)
-            .set("r" , self.radius)
-            .set("stroke-width" , self.width * params.width_scale)
+            .set("r", self.radius)
+            .set("stroke-width", self.width * params.width_scale)
             .set("opacity", self.color.as_rgba().3 as f64);
         if self.fill {
             circ = circ.set("fill", color);

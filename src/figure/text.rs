@@ -1,15 +1,15 @@
-use crate::figure::Figure;
 use crate::app_data::DrawProperties;
+use crate::figure::Figure;
 use crate::svg_params::SvgParams;
 
 use druid::widget::prelude::*;
 use druid::{Color, Point};
 
-use druid::piet::{FontFamily, Text, TextLayoutBuilder, TextLayout};
+use druid::piet::{FontFamily, Text, TextLayout, TextLayoutBuilder};
 
-use svg::Document;
 use svg::node::element::Text as SvgText;
 use svg::node::Text as SvgText2;
+use svg::Document;
 
 // used for vertical alignment
 const K_VERTICAL_AL: f64 = 0.5;
@@ -38,7 +38,7 @@ impl MText {
         let mut s = s.to_string();
         let error_message = format!("Can't parse text from string [{}]", s);
         for i in 0..s.len() {
-            if &s[i..i+2] == "m=" {
+            if &s[i..i + 2] == "m=" {
                 let mut j: usize;
                 if s.chars().nth(i + 2).expect(&error_message) == '"' {
                     j = i + 3;
@@ -55,7 +55,7 @@ impl MText {
                     }
                 }
                 text.text = text.text.replace(";", "\n");
-                s = [s[..i-1].to_string(), s[j..].to_string()].concat();
+                s = [s[..i - 1].to_string(), s[j..].to_string()].concat();
                 break;
             }
         }
@@ -135,7 +135,16 @@ impl Figure for MText {
             .set("y", y)
             .set("fill", self.color_to_string(&self.color))
             .set("font-size", self.font)
-            .set("text-anchor",       if self.alignment.0 == 'B' { "start" } else if self.alignment.0 == 'C' { "middle" } else { "end" })
+            .set(
+                "text-anchor",
+                if self.alignment.0 == 'B' {
+                    "start"
+                } else if self.alignment.0 == 'C' {
+                    "middle"
+                } else {
+                    "end"
+                },
+            )
             .set("opacity", self.color.as_rgba().3 as f64)
             .set("font-family", "system-ui");
         img.add(text)

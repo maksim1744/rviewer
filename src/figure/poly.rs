@@ -1,14 +1,14 @@
-use crate::figure::Figure;
 use crate::app_data::DrawProperties;
-use crate::svg_params::SvgParams;
+use crate::figure::Figure;
 use crate::poly::Poly;
+use crate::svg_params::SvgParams;
 
 use druid::widget::prelude::*;
 use druid::{Color, Point};
 
-use svg::Document;
 use svg::node::element::Polygon as SvgPolygon;
 use svg::node::element::Polyline as SvgPolyline;
+use svg::Document;
 
 pub struct MPoly {
     points: Vec<Point>,
@@ -35,7 +35,7 @@ impl MPoly {
                 let mut iter = token[3..token.len() - 1].split(",");
                 poly.points.push(Point::new(
                     iter.next().expect(&error_message).parse().expect(&error_message),
-                    iter.next().expect(&error_message).parse().expect(&error_message)
+                    iter.next().expect(&error_message).parse().expect(&error_message),
                 ));
             } else if token.starts_with("w=") {
                 poly.width = token[2..].trim().parse().expect(&error_message);
@@ -77,7 +77,10 @@ impl Figure for MPoly {
     fn draw_on_image(&self, img: Document, params: &SvgParams) -> Document {
         let color = self.color_to_string(&self.color);
         let points = self.points.iter().map(|&x| (params.transform)(x));
-        let points = points.map(|p| format!("{},{}", p.x, params.size.height - p.y)).collect::<Vec<_>>().join(" ");
+        let points = points
+            .map(|p| format!("{},{}", p.x, params.size.height - p.y))
+            .collect::<Vec<_>>()
+            .join(" ");
         if self.fill {
             let poly = SvgPolygon::new()
                 .set("points", points)

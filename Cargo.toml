@@ -2,9 +2,7 @@
 name = "rviewer"
 version = "0.1.0"
 authors = ["Maksim Gorokhovskiy <magor1744@gmail.com>"]
-edition = "2018"
-
-# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+edition = "2021"
 
 [dependencies]
 druid = { git = "https://github.com/linebender/druid.git" }

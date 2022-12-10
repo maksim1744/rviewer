@@ -1,5 +1,5 @@
-use std::sync::{Arc, Mutex};
 use std::env;
+use std::sync::{Arc, Mutex};
 use std::thread;
 
 use std::time::Duration;
@@ -11,15 +11,15 @@ use std::io::{self, BufRead, Write};
 use std::collections::HashSet;
 
 use druid::widget::prelude::*;
-use druid::widget::{Flex, Widget, MainAxisAlignment, CrossAxisAlignment, SizedBox, Label, Align};
-use druid::{Size, AppLauncher, WindowDesc, Point, WidgetExt, MouseButton, TimerToken};
-use druid::{Menu, MenuItem};
-use druid::{Command, Selector, Target};
+use druid::widget::{Align, CrossAxisAlignment, Flex, Label, MainAxisAlignment, SizedBox, Widget};
 use druid::Code;
 use druid::WindowId;
+use druid::{AppLauncher, MouseButton, Point, Size, TimerToken, WidgetExt, WindowDesc};
+use druid::{Command, Selector, Target};
+use druid::{Menu, MenuItem};
 
-use svg::Document;
 use svg::node::element::Rectangle as SvgRect;
+use svg::Document;
 mod svg_params;
 use svg_params::SvgParams;
 
@@ -31,14 +31,14 @@ mod settings;
 use settings::Settings;
 
 mod app_data;
+mod checklist;
 mod figure;
 mod islider;
 mod poly;
-mod checklist;
 use checklist::Checklist;
 
-use islider::ISlider;
 use app_data::*;
+use islider::ISlider;
 
 const PADDING: f64 = 8.0;
 
@@ -74,7 +74,14 @@ impl DrawingWidget {
             .set("width", size.width)
             .set("height", size.height);
 
-        let enabled_tags = data.tags.lock().unwrap().iter().filter(|(_, b)| *b).map(|(tag, _)| tag.clone()).collect::<HashSet<String>>();
+        let enabled_tags = data
+            .tags
+            .lock()
+            .unwrap()
+            .iter()
+            .filter(|(_, b)| *b)
+            .map(|(tag, _)| tag.clone())
+            .collect::<HashSet<String>>();
 
         let frame = &data.frames.lock().unwrap()[frame];
 
@@ -88,7 +95,7 @@ impl DrawingWidget {
 
         let flipy = *data.flipy.lock().unwrap();
         let shift = data.shift.lock().unwrap().clone();
-        let transform = |mut p : Point| -> Point {
+        let transform = |mut p: Point| -> Point {
             p.x += shift.width;
             p.y += shift.height;
             if flipy {
@@ -124,23 +131,25 @@ impl DrawingWidget {
         if settings.conversion_tool.as_ref().unwrap() == "rsvg-convert" {
             thread::spawn(move || {
                 std::process::Command::new("rsvg-convert".to_string())
-                        .arg(&*svg_file.lock().unwrap())
-                        .arg("-o")
-                        .arg(&*png_file.lock().unwrap())
-                        .arg("-w")
-                        .arg(settings.frame_resolution.unwrap().to_string())
-                        .output().unwrap();
+                    .arg(&*svg_file.lock().unwrap())
+                    .arg("-o")
+                    .arg(&*png_file.lock().unwrap())
+                    .arg("-w")
+                    .arg(settings.frame_resolution.unwrap().to_string())
+                    .output()
+                    .unwrap();
                 fs::remove_file(&*svg_file.lock().unwrap()).unwrap()
             })
         } else {
             thread::spawn(move || {
                 std::process::Command::new(settings.inkscape_path.unwrap())
-                        .arg("-o")
-                        .arg(&*png_file.lock().unwrap())
-                        .arg("-w")
-                        .arg(settings.frame_resolution.unwrap().to_string())
-                        .arg(&*svg_file.lock().unwrap())
-                        .output().unwrap();
+                    .arg("-o")
+                    .arg(&*png_file.lock().unwrap())
+                    .arg("-w")
+                    .arg(settings.frame_resolution.unwrap().to_string())
+                    .arg(&*svg_file.lock().unwrap())
+                    .output()
+                    .unwrap();
                 fs::remove_file(&*svg_file.lock().unwrap()).unwrap()
             })
         }
@@ -160,7 +169,7 @@ impl DrawingWidget {
         match fs::remove_dir_all("frames") {
             Err(e) => {
                 eprintln!("Can't remove folder frames, {}", e);
-            },
+            }
             _ => {}
         };
         fs::create_dir_all("frames").unwrap();
@@ -191,7 +200,7 @@ impl DrawingWidget {
         match fs::remove_dir_all("frames") {
             Err(e) => {
                 eprintln!("Can't remove folder frames, {}", e);
-            },
+            }
             _ => {}
         };
         fs::create_dir_all("frames").unwrap();
@@ -216,17 +225,17 @@ impl DrawingWidget {
             if settings.conversion_tool.as_ref().unwrap() == "rsvg-convert" {
                 pool.execute(move || {
                     let result = std::process::Command::new("rsvg-convert".to_string())
-                            .arg(&svg_file)
-                            .arg("-o")
-                            .arg(&png_file)
-                            .arg("-w")
-                            .arg(frame_resolution.to_string())
-                            .output();
+                        .arg(&svg_file)
+                        .arg("-o")
+                        .arg(&png_file)
+                        .arg("-w")
+                        .arg(frame_resolution.to_string())
+                        .output();
                     match result {
                         Err(e) => {
                             eprintln!("Can't run rsvg-convert, {}", e);
                             return;
-                        },
+                        }
                         _ => {}
                     };
                     fs::remove_file(&svg_file).unwrap();
@@ -238,8 +247,17 @@ impl DrawingWidget {
                     let mut timeout = 30;
                     loop {
                         let mut p = Popen::create(
-                            &[inkscape_path.clone(), "-o".to_string(), png_file.clone(), "-w".to_string(), frame_resolution.to_string(), svg_file.clone()],
-                            PopenConfig::default()).unwrap();
+                            &[
+                                inkscape_path.clone(),
+                                "-o".to_string(),
+                                png_file.clone(),
+                                "-w".to_string(),
+                                frame_resolution.to_string(),
+                                svg_file.clone(),
+                            ],
+                            PopenConfig::default(),
+                        )
+                        .unwrap();
 
                         p.wait_timeout(Duration::from_secs(timeout)).unwrap();
                         if let None = p.poll() {
@@ -274,17 +292,24 @@ impl DrawingWidget {
             match fs::remove_file("video.mp4".to_string()) {
                 _ => {}
             };
-            let result = Popen::create(&format!("ffmpeg -r {} -i frames/%05d.png -c:v libx264 -vf pad=ceil(iw/2)*2:ceil(ih/2)*2 -pix_fmt yuv420p video.mp4", 1. / fps)
-                .split_whitespace().collect::<Vec<_>>(), PopenConfig {
-                stdin: Redirection::Pipe,
-                stdout: Redirection::Pipe,
-                ..Default::default()
-            });
+            let result = Popen::create(
+                &format!(
+                    "ffmpeg -r {} -i frames/%05d.png -c:v libx264 -vf pad=ceil(iw/2)*2:ceil(ih/2)*2 -pix_fmt yuv420p video.mp4",
+                    1. / fps
+                )
+                .split_whitespace()
+                .collect::<Vec<_>>(),
+                PopenConfig {
+                    stdin: Redirection::Pipe,
+                    stdout: Redirection::Pipe,
+                    ..Default::default()
+                },
+            );
             match result {
                 Ok(mut p) => {
                     p.wait().unwrap();
                     println!("Video created");
-                },
+                }
                 Err(e) => {
                     eprintln!("Can't run ffmpeg, {}", e);
                 }
@@ -304,7 +329,7 @@ impl Widget<AppData> for DrawingWidget {
                     self.last_mouse_pos = e.pos;
                     ctx.request_paint();
                 }
-            },
+            }
             Event::Wheel(e) => {
                 let new_scale = self.scale * 0.01_f64.max(1.1_f64.powf(-e.wheel_delta.y / 50.0));
 
@@ -316,47 +341,45 @@ impl Widget<AppData> for DrawingWidget {
                 self.center.y -= mouse_now.y - mouse_was.y;
 
                 ctx.request_paint();
-            },
+            }
             Event::MouseDown(e) => {
                 self.mouse_down = true;
                 self.last_mouse_pos = e.pos.clone();
-            },
+            }
             Event::MouseUp(_) => {
                 self.mouse_down = false;
-            },
-            Event::KeyDown(e) => {
-                match e.code {
-                    Code::ArrowRight => {
-                        if data.frame + 1 < data.frames.lock().unwrap().len() {
-                            data.frame += 1;
-                            ctx.request_paint();
-                        }
-                    },
-                    Code::ArrowLeft => {
-                        if data.frame != 0 {
-                            data.frame -= 1;
-                            ctx.request_paint();
-                        }
-                    },
-                    Code::Space => {
-                        if self.running {
-                            self.running = false;
-                            self.timer_id = TimerToken::INVALID;
-                        } else {
-                            if data.frame + 1 == data.frames.lock().unwrap().len() {
-                                data.frame = 0;
-                                ctx.request_paint();
-                            }
-                            self.running = true;
-                            self.timer_id = ctx.request_timer(Duration::from_secs_f64(*data.fps_speed.lock().unwrap()));
-                        }
-                    },
-                    Code::Digit0 => {
-                        self.last_data_size = Size::new(0.0, 0.0);
+            }
+            Event::KeyDown(e) => match e.code {
+                Code::ArrowRight => {
+                    if data.frame + 1 < data.frames.lock().unwrap().len() {
+                        data.frame += 1;
                         ctx.request_paint();
-                    },
-                    _ => (),
+                    }
                 }
+                Code::ArrowLeft => {
+                    if data.frame != 0 {
+                        data.frame -= 1;
+                        ctx.request_paint();
+                    }
+                }
+                Code::Space => {
+                    if self.running {
+                        self.running = false;
+                        self.timer_id = TimerToken::INVALID;
+                    } else {
+                        if data.frame + 1 == data.frames.lock().unwrap().len() {
+                            data.frame = 0;
+                            ctx.request_paint();
+                        }
+                        self.running = true;
+                        self.timer_id = ctx.request_timer(Duration::from_secs_f64(*data.fps_speed.lock().unwrap()));
+                    }
+                }
+                Code::Digit0 => {
+                    self.last_data_size = Size::new(0.0, 0.0);
+                    ctx.request_paint();
+                }
+                _ => (),
             },
             Event::Timer(id) => {
                 if *id == self.timer_id {
@@ -371,7 +394,7 @@ impl Widget<AppData> for DrawingWidget {
                         self.timer_id = TimerToken::INVALID;
                     }
                 }
-            },
+            }
             Event::Command(c) => {
                 if c.is::<()>(Selector::new("save_frame_as_svg")) {
                     self.save_frame_as_svg(data);
@@ -385,31 +408,18 @@ impl Widget<AppData> for DrawingWidget {
                     self.make_video_from_frames(data);
                 }
                 ctx.request_paint();
-            },
+            }
             _ => (),
         }
     }
 
-    fn lifecycle(
-        &mut self,
-        _ctx: &mut LifeCycleCtx,
-        _event: &LifeCycle,
-        _data: &AppData,
-        _env: &Env,
-    ) {
-    }
+    fn lifecycle(&mut self, _ctx: &mut LifeCycleCtx, _event: &LifeCycle, _data: &AppData, _env: &Env) {}
 
     fn update(&mut self, ctx: &mut UpdateCtx, _old_data: &AppData, _data: &AppData, _env: &Env) {
         ctx.request_paint();
     }
 
-    fn layout(
-        &mut self,
-        _layout_ctx: &mut LayoutCtx,
-        bc: &BoxConstraints,
-        _data: &AppData,
-        _env: &Env,
-    ) -> Size {
+    fn layout(&mut self, _layout_ctx: &mut LayoutCtx, bc: &BoxConstraints, _data: &AppData, _env: &Env) -> Size {
         bc.max()
     }
 
@@ -420,15 +430,14 @@ impl Widget<AppData> for DrawingWidget {
 
         if data_size != self.last_data_size {
             self.center = Point::new(data_size.width / 2.0, data_size.height / 2.0);
-            self.scale = (self.size.height / data_size.height)
-                     .min(self.size.width / data_size.width) * 0.9;
+            self.scale = (self.size.height / data_size.height).min(self.size.width / data_size.width) * 0.9;
             self.last_data_size = data_size;
         }
 
         let flipy = *data.flipy.lock().unwrap();
         let shift = data.shift.lock().unwrap().clone();
 
-        let transform = |mut p : Point| -> Point {
+        let transform = |mut p: Point| -> Point {
             p.x += shift.width;
             p.y += shift.height;
             if !flipy {
@@ -437,7 +446,14 @@ impl Widget<AppData> for DrawingWidget {
             self.transform(p)
         };
 
-        let enabled_tags = data.tags.lock().unwrap().iter().filter(|(_, b)| *b).map(|(tag, _)| tag.clone()).collect::<HashSet<String>>();
+        let enabled_tags = data
+            .tags
+            .lock()
+            .unwrap()
+            .iter()
+            .filter(|(_, b)| *b)
+            .map(|(tag, _)| tag.clone())
+            .collect::<HashSet<String>>();
 
         if data.frame < data.frames.lock().unwrap().len() {
             let frame = &data.frames.lock().unwrap()[data.frame];
@@ -517,16 +533,11 @@ fn main() {
         };
 
         let window = WindowDesc::new(make_layout())
-            .window_size(Size {
-                width: 800.0,
-                height: 600.0,
-            })
+            .window_size(Size { width: 800.0, height: 600.0 })
             .menu(make_menu)
             .resizable(true)
             .title("Viewer");
-        AppLauncher::with_window(window)
-            .launch(app_data)
-            .expect("launch failed");
+        AppLauncher::with_window(window).launch(app_data).expect("launch failed");
     });
 
     let iter: Box<dyn BufRead> = if args.len() > 0 {
@@ -542,7 +553,6 @@ fn main() {
 
     let mut last_frame = Vec::new();
     let mut is_initial_tick = true;
-
 
     for line in iter.lines() {
         let line = line.unwrap();
@@ -599,7 +609,7 @@ fn main() {
                         init_frames.push(objects.lock().unwrap().len());
                     }
                     objects.lock().unwrap().push(x);
-                },
+                }
                 None => unparsed += 1,
             };
         }
@@ -646,30 +656,25 @@ fn make_layout() -> impl Widget<AppData> {
                         timer_id: TimerToken::INVALID,
                         running: false,
                         last_data_size: Size::new(0.0, 0.0),
-                    }.with_id(drawing_widget_id),
-                    1.0
+                    }
+                    .with_id(drawing_widget_id),
+                    1.0,
                 )
                 .with_spacer(PADDING)
-                .with_child(
-                    Checklist::new(Some(drawing_widget_id)).lens(AppData::tags)
-                )
+                .with_child(Checklist::new(Some(drawing_widget_id)).lens(AppData::tags))
                 .cross_axis_alignment(CrossAxisAlignment::Start),
-            1.0
+            1.0,
         )
         .with_spacer(PADDING)
         .with_child(
             Flex::row()
-                .with_flex_child(
-                    SizedBox::new(ISlider::new().with_range(0, 10)).expand_width(),
-                    1.0
-                )
+                .with_flex_child(SizedBox::new(ISlider::new().with_range(0, 10)).expand_width(), 1.0)
                 .with_child(
-                    SizedBox::new(
-                        Align::right(
-                            Label::new(|data: &AppData, _env: &_| format!("{} / {}", data.frame + 1, data.frames.lock().unwrap().len()))
-                        )
-                    ).width(100.0)
-                )
+                    SizedBox::new(Align::right(Label::new(|data: &AppData, _env: &_| {
+                        format!("{} / {}", data.frame + 1, data.frames.lock().unwrap().len())
+                    })))
+                    .width(100.0),
+                ),
         )
         .cross_axis_alignment(CrossAxisAlignment::Start)
         .main_axis_alignment(MainAxisAlignment::End)
@@ -705,7 +710,10 @@ fn get_settings() -> Settings {
         settings.max_threads = Some(4);
     }
 
-    std::fs::File::create(path).unwrap().write_all(serde_json::to_string_pretty(&settings).unwrap().as_bytes()).unwrap();
+    std::fs::File::create(path)
+        .unwrap()
+        .write_all(serde_json::to_string_pretty(&settings).unwrap().as_bytes())
+        .unwrap();
 
     settings
 }

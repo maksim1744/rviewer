@@ -1,4 +1,4 @@
-use druid::{Size, Point};
+use druid::{Point, Size};
 
 pub struct SvgParams<'a> {
     pub size: Size,

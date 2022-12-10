@@ -1,13 +1,13 @@
-use crate::figure::Figure;
 use crate::app_data::DrawProperties;
+use crate::figure::Figure;
 use crate::svg_params::SvgParams;
 
+use druid::kurbo::Line;
 use druid::widget::prelude::*;
 use druid::{Color, Point};
-use druid::kurbo::Line;
 
-use svg::Document;
 use svg::node::element::Line as SvgLine;
+use svg::Document;
 
 pub struct MGrid {
     center: Point,
@@ -89,12 +89,24 @@ impl Figure for MGrid {
         size.y *= scale;
 
         for i in 0..self.dims.0 + 1 {
-            ctx.stroke(Line::new(Point::new(center.x - size.x / 2. + size.x / self.dims.0 as f64 * i as f64, center.y - size.y / 2.),
-                                 Point::new(center.x - size.x / 2. + size.x / self.dims.0 as f64 * i as f64, center.y + size.y / 2.)), &self.color, self.width);
+            ctx.stroke(
+                Line::new(
+                    Point::new(center.x - size.x / 2. + size.x / self.dims.0 as f64 * i as f64, center.y - size.y / 2.),
+                    Point::new(center.x - size.x / 2. + size.x / self.dims.0 as f64 * i as f64, center.y + size.y / 2.),
+                ),
+                &self.color,
+                self.width,
+            );
         }
         for i in 0..self.dims.1 + 1 {
-            ctx.stroke(Line::new(Point::new(center.x - size.x / 2., center.y - size.y / 2. + size.y / self.dims.1 as f64 * i as f64),
-                                 Point::new(center.x + size.x / 2., center.y - size.y / 2. + size.y / self.dims.1 as f64 * i as f64)), &self.color, self.width);
+            ctx.stroke(
+                Line::new(
+                    Point::new(center.x - size.x / 2., center.y - size.y / 2. + size.y / self.dims.1 as f64 * i as f64),
+                    Point::new(center.x + size.x / 2., center.y - size.y / 2. + size.y / self.dims.1 as f64 * i as f64),
+                ),
+                &self.color,
+                self.width,
+            );
         }
     }
 
@@ -125,9 +137,15 @@ impl Figure for MGrid {
         for i in 0..self.dims.1 + 1 {
             let line = SvgLine::new()
                 .set("x1", center.x - self.size.x / 2.)
-                .set("y1", params.size.height - (center.y - self.size.y / 2. + self.size.y / self.dims.1 as f64 * i as f64))
+                .set(
+                    "y1",
+                    params.size.height - (center.y - self.size.y / 2. + self.size.y / self.dims.1 as f64 * i as f64),
+                )
                 .set("x2", center.x + self.size.x / 2.)
-                .set("y2", params.size.height - (center.y - self.size.y / 2. + self.size.y / self.dims.1 as f64 * i as f64))
+                .set(
+                    "y2",
+                    params.size.height - (center.y - self.size.y / 2. + self.size.y / self.dims.1 as f64 * i as f64),
+                )
                 .set("stroke-width", self.width * params.width_scale)
                 .set("stroke", self.color_to_string(&self.color))
                 .set("opacity", self.color.as_rgba().3 as f64);

@@ -1,6 +1,5 @@
 // stolen directly from druid::widget::Slider and adjusted to my needs
 
-
 // Copyright 2019 The Druid Authors.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
@@ -17,12 +16,11 @@
 
 use crate::app_data::AppData;
 
-use druid::widget::prelude::*;
-use druid::{Size, Rect, Point};
 use druid::kurbo::{Circle, RoundedRect};
-use druid::{theme, LinearGradient, UnitPoint};
 use druid::piet::kurbo::Shape;
-
+use druid::widget::prelude::*;
+use druid::{theme, LinearGradient, UnitPoint};
+use druid::{Point, Rect, Size};
 
 pub struct ISlider {
     min: usize,
@@ -148,10 +146,7 @@ impl Widget<AppData> for ISlider {
         let background_gradient = LinearGradient::new(
             UnitPoint::TOP,
             UnitPoint::BOTTOM,
-            (
-                env.get(theme::BACKGROUND_LIGHT),
-                env.get(theme::BACKGROUND_DARK),
-            ),
+            (env.get(theme::BACKGROUND_LIGHT), env.get(theme::BACKGROUND_DARK)),
         );
 
         ctx.stroke(background_rect, &env.get(theme::BORDER_DARK), BORDER_WIDTH);
@@ -166,30 +161,22 @@ impl Widget<AppData> for ISlider {
         self.knob_pos = Point::new(knob_position, knob_size / 2.);
         let knob_rect_size = (knob_size - KNOB_STROKE_WIDTH) * 0.6;
         let knob_rect = RoundedRect::from_rect(
-            Rect::from_center_size(self.knob_pos, Size::new(knob_rect_size, knob_rect_size)), knob_rect_size / 5.0);
+            Rect::from_center_size(self.knob_pos, Size::new(knob_rect_size, knob_rect_size)),
+            knob_rect_size / 5.0,
+        );
 
         let normal_knob_gradient = LinearGradient::new(
             UnitPoint::TOP,
             UnitPoint::BOTTOM,
-            (
-                env.get(theme::FOREGROUND_LIGHT),
-                env.get(theme::FOREGROUND_DARK),
-            ),
+            (env.get(theme::FOREGROUND_LIGHT), env.get(theme::FOREGROUND_DARK)),
         );
         let flipped_knob_gradient = LinearGradient::new(
             UnitPoint::TOP,
             UnitPoint::BOTTOM,
-            (
-                env.get(theme::FOREGROUND_DARK),
-                env.get(theme::FOREGROUND_LIGHT),
-            ),
+            (env.get(theme::FOREGROUND_DARK), env.get(theme::FOREGROUND_LIGHT)),
         );
 
-        let knob_gradient = if is_active {
-            flipped_knob_gradient
-        } else {
-            normal_knob_gradient
-        };
+        let knob_gradient = if is_active { flipped_knob_gradient } else { normal_knob_gradient };
 
         //Paint the border
         let border_color = if is_hovered || is_active {

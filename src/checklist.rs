@@ -6,9 +6,9 @@ use druid::theme;
 use druid::widget::prelude::*;
 use druid::{Color, Point, Rect};
 
-use druid::{Command, Target, Selector};
+use druid::{Command, Selector, Target};
 
-use druid::piet::{FontFamily, Text, TextLayoutBuilder, TextAlignment};
+use druid::piet::{FontFamily, Text, TextAlignment, TextLayoutBuilder};
 
 const HEIGHT_KOEF: f64 = 1.2;
 
@@ -89,7 +89,10 @@ impl Widget<Arc<Mutex<Vec<(String, bool)>>>> for Checklist {
     }
 
     fn layout(&mut self, _ctx: &mut LayoutCtx, _bc: &BoxConstraints, data: &Arc<Mutex<Vec<(String, bool)>>>, env: &Env) -> Size {
-        Size::new(self.width, env.get(theme::BASIC_WIDGET_HEIGHT) * data.lock().unwrap().len() as f64 * HEIGHT_KOEF)
+        Size::new(
+            self.width,
+            env.get(theme::BASIC_WIDGET_HEIGHT) * data.lock().unwrap().len() as f64 * HEIGHT_KOEF,
+        )
     }
 
     fn paint(&mut self, ctx: &mut PaintCtx, data: &Arc<Mutex<Vec<(String, bool)>>>, env: &Env) {
@@ -99,11 +102,9 @@ impl Widget<Arc<Mutex<Vec<(String, bool)>>>> for Checklist {
         let mut position = size * (HEIGHT_KOEF - 1.0) / 2.0;
         let mut ind: usize = 0;
         for (key, val) in data.lock().unwrap().iter() {
-            let rect =
-                Rect::from_origin_size(Point::new(0.0, position), Size::new(size, size))
+            let rect = Rect::from_origin_size(Point::new(0.0, position), Size::new(size, size))
                 .inset(-border_width / 2.)
                 .to_rounded_rect(2.);
-
 
             let border_color = if ctx.is_hot() && self.selected == Some(ind) {
                 env.get(theme::BORDER_LIGHT)
@@ -120,9 +121,7 @@ impl Widget<Arc<Mutex<Vec<(String, bool)>>>> for Checklist {
                 path.line_to((8.0, position + 13.0));
                 path.line_to((14.0, position + 5.0));
 
-                let style = StrokeStyle::new()
-                    .line_cap(LineCap::Round)
-                    .line_join(LineJoin::Round);
+                let style = StrokeStyle::new().line_cap(LineCap::Round).line_join(LineJoin::Round);
 
                 ctx.stroke_styled(path, &env.get(theme::TEXT_COLOR), 2., &style);
             }

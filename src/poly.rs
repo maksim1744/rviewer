@@ -1,7 +1,7 @@
-use druid::piet::kurbo::Shape;
 use druid::piet::kurbo::PathEl;
+use druid::piet::kurbo::Shape;
 
-use druid::{Rect, Point};
+use druid::{Point, Rect};
 
 #[derive(Clone)]
 pub struct Poly {
@@ -10,9 +10,7 @@ pub struct Poly {
 
 impl Poly {
     pub fn from_vec(vec: &[Point]) -> Self {
-        Poly {
-            points: vec.to_vec(),
-        }
+        Poly { points: vec.to_vec() }
     }
 
     fn triangle_area(&self, a: Point, b: Point, c: Point) -> f64 {
@@ -44,7 +42,7 @@ impl Shape for Poly {
     type PathElementsIter = PolyPathIter;
 
     fn path_elements(&self, _tolerance: f64) -> PolyPathIter {
-        PolyPathIter{ poly: self.clone(), ind: 0 }
+        PolyPathIter { poly: self.clone(), ind: 0 }
     }
 
     fn area(&self) -> f64 {

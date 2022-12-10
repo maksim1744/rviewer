@@ -1,11 +1,11 @@
-use crate::figure::Figure;
 use crate::app_data::DrawProperties;
+use crate::figure::Figure;
 use crate::svg_params::SvgParams;
 
 use druid::widget::prelude::*;
 use druid::{Color, Point};
 
-use druid::piet::{FontFamily, Text, TextLayoutBuilder, TextLayout};
+use druid::piet::{FontFamily, Text, TextLayout, TextLayoutBuilder};
 
 use svg::Document;
 
@@ -29,7 +29,6 @@ impl MMessage {
 
 impl Figure for MMessage {
     fn draw(&self, ctx: &mut PaintCtx, _scale: f64, _transform: &dyn Fn(Point) -> Point) {
-
         let text = ctx.text();
         let layout = text
             .new_text_layout(self.text.clone())

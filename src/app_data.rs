@@ -2,7 +2,7 @@ use crate::figure::Figure;
 
 use std::sync::{Arc, Mutex};
 
-use druid::{Data, Size, Lens};
+use druid::{Data, Lens, Size};
 
 #[derive(Clone, Data)]
 pub struct DrawProperties {

@@ -1,13 +1,13 @@
-use crate::figure::Figure;
 use crate::app_data::DrawProperties;
+use crate::figure::Figure;
 use crate::svg_params::SvgParams;
 
+use druid::kurbo::Line;
 use druid::widget::prelude::*;
 use druid::{Color, Point};
-use druid::kurbo::Line;
 
-use svg::Document;
 use svg::node::element::Line as SvgLine;
+use svg::Document;
 
 pub struct MLine {
     start: Point,
