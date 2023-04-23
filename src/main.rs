@@ -630,7 +630,7 @@ fn main() {
             shift.lock().unwrap().height = iter.next().unwrap().parse().unwrap();
         } else if line.starts_with("svgwidth") {
             *svg_width_scale.lock().unwrap() = line[9..].trim().parse::<f64>().unwrap();
-        } else if line == "flipy" {
+        } else if line.starts_with("flipy") {
             *flipy.lock().unwrap() = true;
         } else if line.starts_with("disable ") {
             let dtag = line[8..].trim().to_string();
@@ -641,7 +641,7 @@ fn main() {
             }
             disabled_tags.insert(dtag);
         } else if line.starts_with("in_betweens") {
-            in_between_properties.frames = line.split_whitespace().nth(1).unwrap().parse().unwrap();
+            in_between_properties.frames = line[12..].parse().unwrap();
             in_between_properties.func = (1..in_between_properties.frames)
                 .map(|x| x as f64 / in_between_properties.frames as f64)
                 .collect();
