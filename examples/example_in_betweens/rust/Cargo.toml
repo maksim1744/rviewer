@@ -1,0 +1,7 @@
+[package]
+name = "example_in_betweens"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+rviewer_client = { path = "../../../clients/rust" }

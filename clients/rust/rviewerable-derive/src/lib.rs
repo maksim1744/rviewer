@@ -119,8 +119,10 @@ pub fn rviewerable_derive(stream: TokenStream) -> TokenStream {
 
             fn draw<T: Write>(self, writer: &mut T) {
                 write!(writer, #prefix).unwrap();
-                #(self.#field_idents.print_sep(#field_names, writer, #sep);)*
-                write!(writer, #suffix).unwrap();
+                let mut buf: Vec<u8> = Vec::new();
+                #(self.#field_idents.print_sep(#field_names, &mut buf, #sep);)*
+                let buf = std::str::from_utf8(&buf).unwrap().trim_end_matches(' ');
+                write!(writer, "{}{}", buf, #suffix).unwrap();
             }
         }
 

@@ -22,6 +22,7 @@ impl Printable for i32 {
         write!(writer, "{}={}", name, self).unwrap();
     }
 }
+
 impl Printable for String {
     fn print<T: Write>(&self, name: &str, writer: &mut T) {
         if self.contains(' ') {
@@ -51,7 +52,7 @@ impl Printable for (f64, f64) {
         write!(writer, "{}=({},{})", name, self.0, self.1).unwrap();
     }
 }
-impl Printable for (i32, i32) {
+impl Printable for (usize, usize) {
     fn print<T: Write>(&self, name: &str, writer: &mut T) {
         write!(writer, "{}=({},{})", name, self.0, self.1).unwrap();
     }
@@ -151,6 +152,7 @@ impl Printable for Color {
     }
 }
 
+#[derive(Clone, Copy, Debug)]
 pub enum Alignment {
     Begin,
     Center,
@@ -158,7 +160,7 @@ pub enum Alignment {
 }
 
 impl Alignment {
-    fn to_char(&self) -> char {
+    pub fn to_char(&self) -> char {
         match self {
             Alignment::Begin => 'B',
             Alignment::Center => 'C',
@@ -213,7 +215,7 @@ pub struct Init {
     speed: Option<f64>,
     #[rviewer("width")]
     width: Option<f64>,
-    #[rviewer("svg_width")]
+    #[rviewer("svgwidth")]
     svg_width: Option<f64>,
     #[rviewer("in_betweens")]
     in_betweens: Option<i32>,
@@ -280,7 +282,7 @@ pub struct Line {
 pub struct Grid {
     center: Option<(f64, f64)>,
     size: Option<(f64, f64)>,
-    dims: Option<(i32, i32)>,
+    dims: Option<(usize, usize)>,
     width: Option<f64>,
     color: Option<Color>,
     alignment: Option<(Alignment, Alignment)>,

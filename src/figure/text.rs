@@ -31,7 +31,7 @@ impl MText {
         let mut s = s.to_string();
         let error_message = format!("Can't parse text from string [{}]", s);
         let mut text = String::new();
-        for i in 0..s.len() {
+        for i in 0..s.len() - 2 {
             if &s[i..i + 2] == "m=" {
                 let mut j: usize;
                 if s.chars().nth(i + 2).expect(&error_message) == '"' {
