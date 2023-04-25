@@ -2,9 +2,9 @@
 
 Draws animation from text files. Was created for AI competitions like CodinGame or RussianAiCup.
 
-Examples can be found in the folder [examples](/examples) (along with the `.cpp` files to generate `.txt` file). For example, ready animation
+Examples can be found in the folder [examples](/examples) (along with the `.cpp` and `.rs` files to generate `.txt` file). For example, ready animation
 
-<img src="examples/example1.gif" width="400">
+<img src="examples/example1/example1.gif" width="400">
 
 Or screenshot of a working program from an actual competition:
 
@@ -88,14 +88,13 @@ For `rivewer` to understand that it is the same object in two frames that needs 
 
 Default movement is uniform across all frames. If you want a different function, first specify a function with `setfunc your_func_name 0.25 0.5 0.75` &mdash; which contains an array of intermediate positions. For example, a function above is equivalent to default function with `in_betweens 4`. Then to use it, add `fu=your_func_name` to the resulting version of an object (i.e. the one that is in the second frame among two consecutive).
 
-Refer to [example_in_betweens](examples/example_in_betweens.cpp) for more details.
+Refer to [example_in_betweens](examples/example_in_betweens) for more details.
 
 ## Clients
-All available clients are available in folder [client](/clients).
-### cpp
-Examples can be found in [examples](/examples) folder. The simple program will look like this:
+The list of all client libraries is available in the folder [client](/clients). Corresponding examples are in [examples](/examples). Here are some simple usages
+
 <details>
-  <summary>Code</summary>
+  <summary>cpp</summary>
   
   ```cpp
   Init().size({W * (m + 1), W * (n + 1)}).speed(1.5);
@@ -110,6 +109,26 @@ Examples can be found in [examples](/examples) folder. The simple program will l
   rect.draw();  // prints rectangle with alignment and tag
   // if you don't call draw, it will be drawn in destructor anyway
   // if you don't want that, set rect.drawn_ = true
+  ```
+  
+</details>
+
+<details>
+  <summary>rust</summary>
+  
+  ```rs
+  // anything that implements std::io::Write
+  let w = &mut std::io::BufWriter::new(std::fs::File::create("output.txt").unwrap());
+  Init::new().size((30., 40.)).speed(1.5).draw(w);
+  tick(w);
+  Rect::new().center((10., 20.)).size((4., 3.)).color(Color::RED).alignment((Alignment::Begin, Alignment::Center)).draw(w);
+  Text::new().text("hello").center((25., 35.)).font(7.5).color(Color::WHITE).draw(w);
+  
+  // .draw(w) consumes object and prints it to w
+  let mut rect = Rect::new().center((10., 20.)).size((4., 3.)).fill(true).color(Color::ORANGE);  // prints nothing
+  rect = rect.alignment((Alignment::Center, Alignment::End));
+  rect = rect.tag("some_tag");
+  rect.draw(w);  // prints rectangle with alignment and tag
   ```
   
 </details>
