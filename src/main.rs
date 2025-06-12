@@ -37,6 +37,7 @@ mod in_between;
 mod islider;
 mod parse;
 mod poly;
+mod transform;
 
 use checklist::Checklist;
 use figure::in_betweens;
@@ -44,6 +45,7 @@ use in_between::InBetweenProperties;
 
 use app_data::*;
 use islider::ISlider;
+use transform::Transform;
 
 const PADDING: f64 = 8.0;
 
@@ -112,6 +114,7 @@ impl DrawingWidget {
         let params = SvgParams {
             size: size.clone(),
             width_scale: *data.svg_width_scale.lock().unwrap(),
+            flipy,
             transform: &transform,
         };
 
@@ -442,14 +445,7 @@ impl Widget<AppData> for DrawingWidget {
         let flipy = *data.flipy.lock().unwrap();
         let shift = data.shift.lock().unwrap().clone();
 
-        let transform = |mut p: Point| -> Point {
-            p.x += shift.width;
-            p.y += shift.height;
-            if !flipy {
-                p.y = data_size.height - p.y;
-            }
-            self.transform(p)
-        };
+        let transform = Transform::new(|p| self.transform(p), shift, data_size, flipy);
 
         let enabled_tags = data
             .tags

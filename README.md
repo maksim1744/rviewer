@@ -29,7 +29,7 @@ File consists of multiple lines, each line corresponds to an object to be drawn.
 Objects look like this: `circle c=(10,20) r=15 col=(255,255,0) f=1`. Not all parameters are required, default will be used if not specified. Spaces are important (as well as their absence in `col`, for example)
 
 Each object can be one of those:
-+ `rect` &mdash; rectangle by position and size 
++ `rect` &mdash; rectangle by position and size
   + `c=(10,20)` &mdash; position, pair of doubles
   + `a=xy` &mdash; alignment, consists of two chars, each is `B`, `C` or `E`, stands for `begin`, `center` or `end`, default is `a=CC`
   + `s=(10,20)` &mdash; size, pair of doubles
@@ -41,6 +41,7 @@ Each object can be one of those:
 + `circle` &mdash; circle by center and radius
   + `c=(10,20)` &mdash; center, pair of doubles
   + `r=15` &mdash; radius, double
+  + `arc=(1.57,3.14)` &mdash; draw only an arc between two angles counterclockwise
   + `col=(255,255,0)` &mdash; color, 3 or 4 integers from 0 to 255 (last one is alpha channel)
   + `f=0` &mdash; 1 or 0, fill or not
   + `w=1.5` &mdash; double, width of a border line. Works only with `f=0`
@@ -95,13 +96,13 @@ The list of all client libraries is available in the folder [client](/clients). 
 
 <details>
   <summary>cpp</summary>
-  
+
   ```cpp
   Init().size({W * (m + 1), W * (n + 1)}).speed(1.5);
   Tick();
   Rect({10, 20}, {4, 3}).fill(0).color(Color::red).align('B', 'C');
   Text(to_string(123)).center({25, 35}).font(7.5).color(Color::white);
-  
+
   // object is drawn in destructor
   auto rect = Rect({10, 20}, {4, 3}).fill(1).color(Color::orange);  // prints nothing
   rect.align('C', 'E');
@@ -110,12 +111,12 @@ The list of all client libraries is available in the folder [client](/clients). 
   // if you don't call draw, it will be drawn in destructor anyway
   // if you don't want that, set rect.drawn_ = true
   ```
-  
+
 </details>
 
 <details>
   <summary>rust</summary>
-  
+
   ```rs
   // anything that implements std::io::Write
   let w = &mut std::io::BufWriter::new(std::fs::File::create("output.txt").unwrap());
@@ -123,14 +124,14 @@ The list of all client libraries is available in the folder [client](/clients). 
   tick(w);
   Rect::new().center((10., 20.)).size((4., 3.)).color(Color::RED).alignment((Alignment::Begin, Alignment::Center)).draw(w);
   Text::new().text("hello").center((25., 35.)).font(7.5).color(Color::WHITE).draw(w);
-  
+
   // .draw(w) consumes object and prints it to w
   let mut rect = Rect::new().center((10., 20.)).size((4., 3.)).fill(true).color(Color::ORANGE);  // prints nothing
   rect = rect.alignment((Alignment::Center, Alignment::End));
   rect = rect.tag("some_tag");
   rect.draw(w);  // prints rectangle with alignment and tag
   ```
-  
+
 </details>
 
 ## Key bindings

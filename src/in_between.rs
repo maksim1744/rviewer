@@ -53,6 +53,12 @@ impl Interpolate for (usize, usize) {
     }
 }
 
+impl Interpolate for (f64, f64) {
+    fn interpolate(a: &Self, b: &Self, k: f64) -> Self {
+        (interpolate(&a.0, &b.0, k), interpolate(&a.1, &b.1, k))
+    }
+}
+
 impl Interpolate for Point {
     fn interpolate(a: &Self, b: &Self, k: f64) -> Self {
         Self::new(interpolate(&a.x, &b.x, k), interpolate(&a.y, &b.y, k))

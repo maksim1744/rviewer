@@ -3,6 +3,7 @@ use crate::figure::{CommonParams, Figure};
 use crate::in_between::{interpolate, InBetweenProperties};
 use crate::parse::Params;
 use crate::svg_params::SvgParams;
+use crate::transform::Transform;
 
 use std::any::Any;
 
@@ -57,7 +58,7 @@ impl MGrid {
 }
 
 impl Figure for MGrid {
-    fn draw(&self, ctx: &mut PaintCtx, scale: f64, transform: &dyn Fn(Point) -> Point) {
+    fn draw(&self, ctx: &mut PaintCtx, scale: f64, transform: &Transform) {
         let mut center = self.center;
         if self.alignment.0 == 'B' {
             center.x += self.size.x / 2.;
@@ -69,7 +70,7 @@ impl Figure for MGrid {
         } else if self.alignment.1 == 'E' {
             center.y -= self.size.y / 2.;
         }
-        let center = transform(center);
+        let center = transform.point(center);
         let mut size = self.size;
         size.x *= scale;
         size.y *= scale;

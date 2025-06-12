@@ -1,6 +1,7 @@
 use crate::app_data::DrawProperties;
 use crate::figure::{CommonParams, Figure};
 use crate::svg_params::SvgParams;
+use crate::transform::Transform;
 
 use std::any::Any;
 
@@ -30,7 +31,7 @@ impl MMessage {
 }
 
 impl Figure for MMessage {
-    fn draw(&self, ctx: &mut PaintCtx, _scale: f64, _transform: &dyn Fn(Point) -> Point) {
+    fn draw(&self, ctx: &mut PaintCtx, _scale: f64, _transform: &Transform) {
         let text = ctx.text();
         let layout = text
             .new_text_layout(self.text.clone())

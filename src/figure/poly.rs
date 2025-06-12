@@ -4,6 +4,7 @@ use crate::in_between::{interpolate, InBetweenProperties};
 use crate::parse::Params;
 use crate::poly::Poly;
 use crate::svg_params::SvgParams;
+use crate::transform::Transform;
 
 use std::any::Any;
 
@@ -52,8 +53,8 @@ impl MPoly {
 }
 
 impl Figure for MPoly {
-    fn draw(&self, ctx: &mut PaintCtx, _scale: f64, transform: &dyn Fn(Point) -> Point) {
-        let points = self.points.iter().map(|&x| transform(x)).collect::<Vec<_>>();
+    fn draw(&self, ctx: &mut PaintCtx, _scale: f64, transform: &Transform) {
+        let points = self.points.iter().map(|&x| transform.point(x)).collect::<Vec<_>>();
         let poly = Poly::from_vec(&points);
         if self.fill {
             ctx.fill(poly, &self.common.color);

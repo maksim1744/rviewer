@@ -95,6 +95,14 @@ impl Param for Point {
     }
 }
 
+impl Param for (f64, f64) {
+    fn from(s: &[&str]) -> Option<Self> {
+        let s = s[0];
+        let mut iter = s[1..s.len() - 1].split(',');
+        Some((iter.next()?.parse().ok()?, iter.next()?.parse().ok()?))
+    }
+}
+
 impl Param for Vec<Point> {
     fn from(s: &[&str]) -> Option<Self> {
         s.iter().map(|s| <Point as Param>::from(&[s])).collect()

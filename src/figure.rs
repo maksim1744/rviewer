@@ -1,9 +1,9 @@
 use crate::app_data::DrawProperties;
 use crate::in_between::InBetweenProperties;
 use crate::svg_params::SvgParams;
+use crate::transform::Transform;
 
 use druid::widget::prelude::*;
-use druid::Point;
 
 use std::any::Any;
 use std::collections::HashSet;
@@ -28,7 +28,7 @@ pub mod common;
 pub use common::CommonParams;
 
 pub trait Figure {
-    fn draw(&self, ctx: &mut PaintCtx, scale: f64, transform: &dyn Fn(Point) -> Point);
+    fn draw(&self, ctx: &mut PaintCtx, scale: f64, transform: &Transform);
     fn draw_on_image(&self, img: Document, params: &SvgParams) -> Document;
     fn common(&self) -> &CommonParams;
     fn as_any(&self) -> &dyn Any;

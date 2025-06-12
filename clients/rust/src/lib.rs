@@ -249,6 +249,8 @@ pub struct Rect {
 pub struct Circle {
     center: Option<(f64, f64)>,
     radius: Option<f64>,
+    #[rviewer("arc")]
+    arc: Option<(f64, f64)>,
     width: Option<f64>,
     fill: bool,
     color: Option<Color>,

@@ -3,6 +3,7 @@ use crate::figure::{CommonParams, Figure};
 use crate::in_between::{interpolate, InBetweenProperties};
 use crate::parse::Params;
 use crate::svg_params::SvgParams;
+use crate::transform::Transform;
 
 use std::any::Any;
 
@@ -51,9 +52,9 @@ impl MLine {
 }
 
 impl Figure for MLine {
-    fn draw(&self, ctx: &mut PaintCtx, _scale: f64, transform: &dyn Fn(Point) -> Point) {
-        let start = transform(self.start);
-        let finish = transform(self.finish);
+    fn draw(&self, ctx: &mut PaintCtx, _scale: f64, transform: &Transform) {
+        let start = transform.point(self.start);
+        let finish = transform.point(self.finish);
         ctx.stroke(Line::new(start, finish), &self.common.color, self.width);
     }
 

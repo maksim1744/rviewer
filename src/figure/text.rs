@@ -3,6 +3,7 @@ use crate::figure::{CommonParams, Figure};
 use crate::in_between::{interpolate, InBetweenProperties};
 use crate::parse::Params;
 use crate::svg_params::SvgParams;
+use crate::transform::Transform;
 
 use std::any::Any;
 
@@ -88,7 +89,7 @@ impl MText {
 }
 
 impl Figure for MText {
-    fn draw(&self, ctx: &mut PaintCtx, scale: f64, transform: &dyn Fn(Point) -> Point) {
+    fn draw(&self, ctx: &mut PaintCtx, scale: f64, transform: &Transform) {
         let font = self.font * scale;
 
         let text = ctx.text();
@@ -101,7 +102,7 @@ impl Figure for MText {
 
         let text_size = layout.size();
 
-        let mut center = transform(self.center);
+        let mut center = transform.point(self.center);
         if self.alignment.0 == 'B' {
             center.x += text_size.width / 2.;
         } else if self.alignment.0 == 'E' {

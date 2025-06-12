@@ -269,6 +269,7 @@ struct Rect {
 struct Circle {
     optional<pair<double, double>> center_;
     optional<double> radius_;
+    optional<pair<double, double>> arc_;
     optional<double> width_;
     optional<bool> fill_;
     optional<Color> color_;
@@ -292,6 +293,10 @@ struct Circle {
     }
     Circle &radius(double r) {
         radius_ = r;
+        return *this;
+    }
+    Circle &arc(const pair<double, double> &a) {
+        arc_ = a;
         return *this;
     }
     Circle &width(double w) {
@@ -328,6 +333,7 @@ struct Circle {
         _cout << "circle";
         print_option("c", center_);
         print_option("r", radius_);
+        print_option("arc", arc_);
         print_option("w", width_);
         print_option("f", fill_);
         print_option("col", color_);
